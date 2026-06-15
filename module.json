@@ -1,0 +1,117 @@
+{
+"id": "sf-alternity",
+  "title": "Starfinder Alternity Overlay",
+  "description": "A module that adds an overlay to the Starfinder RPG system, allowing players to easily manage their Alternity crew and NPCs.",
+
+  "authors": [
+    {
+      "name": "bob",
+      "flags": {}
+    }
+  ],
+  "version": "0.14.01",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14",
+    "maximum": "14"
+  },
+    "esmodules": [
+    "modules/sf-alternity.js"
+  ],
+  
+  "packFolders": [
+    {
+      "name": "SF Alternity Overlay",
+      "packs": [
+        "sfa_characters",
+        "sfa_macros",
+        "sfa_items"
+      ],
+      "color": "#19d6b7"
+    }   
+
+  ],
+
+"packs": [
+    {
+      "name": "sfa_characters",
+      "label": "Bonus Actors",
+      "system": "sfrpg",
+      "type": "Actor",
+      "path": "./packs/sfa_characters",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "TRUSTED": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+        {
+      "name": "sfa_macros",
+      "label": "Bonus Macros",
+      "system": "sfrpg",
+      "type": "Macro",
+      "path": "./packs/sfa_macros",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "TRUSTED": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    }
+    
+    
+    ,
+        {
+      "name": "sfa_items",
+      "label": "Bonus Items",
+      "system": "sfrpg",
+      "type": "Item",
+      "path": "./packs/sfa_items",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "TRUSTED": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    }
+  ],
+
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json",
+      "flags": {}
+    }
+    
+  ],   
+     "flags": {},
+      "banner": "modules/sf-alternity/images/system/sf-alternity_01.webp",
+
+
+  "styles": [
+    "styles/sf-alternity.css"
+  ],
+  "url": "https://github.com/nzlbob/sf-alternity",
+  "manifest": "https://raw.githubusercontent.com/nzlbob/sf-alternity/refs/heads/main/module.json",
+  "download": "https://github.com/nzlbob/sf-alternity/archive/refs/heads/main.zip",
+  "media": [
+    {
+      "type": "thumbnail",
+      "url": "modules/sf-alternity/images/system/sf-alternity_02.webp",
+      "loop": false,
+      "flags": {}
+    },
+    {
+      "type": "setup",
+      "url": "modules/sf-alternity/images/system/sf-alternity_01.webp",
+      "loop": false,
+      "flags": {}
+    },
+    {
+      "type": "cover",
+      "url": "https://raw.githubusercontent.com/nzlbob/sf-alternity/main/images//system/sf-alternity_01.webp",
+      "caption": "sf-alternity",
+      "loop": false,
+      "flags": {}
+    }
+  ]
+}

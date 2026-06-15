@@ -1,0 +1,3 @@
+# Ignore docs output folder
+.github/
+templates-SF/

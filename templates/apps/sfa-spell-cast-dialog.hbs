@@ -1,0 +1,36 @@
+<form class="sfa-spell-cast-form">
+    {{#if hasVariableLevel}}
+    <div class="form-group">
+        <label>{{localize "SFA.Spells.SpellLevelLabel"}}</label>
+        <select name="level">
+            {{#each levelChoices as |choice|}}
+            <option value="{{choice.level}}" {{#if choice.selected}}selected{{/if}}>
+                {{choice.label}} ({{localize "SFA.Spells.PowerCostLabel" cost=choice.cost}})
+            </option>
+            {{/each}}
+        </select>
+    </div>
+    {{else}}
+    <input type="hidden" name="level" value="{{levelChoices.0.level}}" />
+    <div class="form-group">
+        <label>{{localize "SFA.Spells.SpellLevelLabel"}}</label>
+        <div>{{levelChoices.0.label}} ({{localize "SFA.Spells.PowerCostLabel" cost=levelChoices.0.cost}})</div>
+    </div>
+    {{/if}}
+
+    <div class="form-group">
+        <label>{{poolLabel}}</label>
+        <div>{{availablePower}} / {{maximumPower}}</div>
+    </div>
+
+    <div class="form-group">
+        <label>{{localize "SFA.Spells.ConsumePowerLabel"}}</label>
+        <input type="checkbox" name="consume" {{#if consumeDefault}}checked{{/if}} />
+    </div>
+
+    {{#if warningMessage}}
+    <p class="notes">{{warningMessage}}</p>
+    {{else}}
+    <p class="notes">{{infoMessage}}</p>
+    {{/if}}
+</form>

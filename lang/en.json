@@ -1,0 +1,64 @@
+{
+    "SFA": {
+        "CombatRoles": {
+            "Trap": "Trap",
+            "Descriptions": {
+                "Trap": "A stationary hazard that activates when a creature comes within its trigger area."
+            }
+        },
+        "Settings": {
+            "EnableOverlay": {
+                "Name": "Enable Alternity Overlay",
+                "Hint": "Activates Alternity-style skill point, achievement, and class overlays."
+            },
+            "HideCoreCompendiums": {
+                "Name": "Hide Core SFRPG Compendiums",
+                "Hint": "Removes Starfinder system compendiums from the Compendium directory in this world."
+            },
+            "StartingSkillPointsBase": {
+                "Name": "Base Starting Skill Points",
+                "Hint": "Flat number of starting Alternity skill points granted before Intelligence is applied."
+            },
+            "IntelligenceMultiplier": {
+                "Name": "Intelligence Skill Point Multiplier",
+                "Hint": "Multiplier applied to the actor's Intelligence score when determining starting Alternity skill points."
+            },
+            "LevelSkillPointBase": {
+                "Name": "Per-Level Skill Point Base",
+                "Hint": "Base number of Alternity skill points granted at each level above 1."
+            },
+            "LevelSkillPointIncrement": {
+                "Name": "Per-Level Skill Point Increment",
+                "Hint": "Additional scaling applied per level above 1 when calculating earned Alternity skill points."
+            }
+        },
+        "Spells": {
+            "FXTab": "FX",
+            "PsionicsTab": "Psionics",
+            "FXPower": "FX Power",
+            "PsionicPower": "Psionic Power",
+            "SpellLevelLabel": "Spell level",
+            "EditBonus": "Edit bonus",
+            "FXBonusPrompt": "Enter the manual FX power bonus.",
+            "PsionicBonusPrompt": "Enter the manual psionic power bonus.",
+            "CastDialogTitle": "Cast {spellType}: {spellName}",
+            "CastButtonLabel": "Cast",
+            "CancelButtonLabel": "Cancel",
+            "ConsumePowerLabel": "Consume power",
+            "PowerCostLabel": "Cost {cost}",
+            "PowerCastInfo": "Casting consumes power equal to the selected spell level.",
+            "WarningInsufficientPower": "Current {poolLabel} is too low to cast any available spell level.",
+            "ErrorInsufficientPower": "Not enough {poolLabel}. Required: {required}. Available: {available}.",
+            "OpenBrowser": "Open Spell Browser",
+            "CreateFX": "Create FX Spell",
+            "CreatePsionic": "Create Psionic Spell",
+            "UntypedHidden": "{count} untyped spell items are hidden from Alternity tabs.",
+            "InvalidHidden": "{count} spell items are flagged as both FX and Psionic and are hidden.",
+            "EmptyFX": "No FX spells are assigned to this character.",
+            "EmptyPsionics": "No psionic spells are assigned to this character.",
+            "Uses": "Uses",
+            "NewFX": "New FX Spell",
+            "NewPsionic": "New Psionic Spell"
+        }
+    }
+}

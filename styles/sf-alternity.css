@@ -1,0 +1,194 @@
+
+@font-face {
+  font-family: serpentine ;
+  src: url(../fonts/Serpentine-Medium.otf);
+}
+@font-face {
+  font-family: serpentine-bold ;
+  src: url(../fonts/Serpentine-Bold.otf);
+}
+:root {
+
+  /* Brand Colors */
+  --color-primary: #0eaaaa;
+  --color-primary-dark: #096969;
+  --color-primary-mid: #0b8181;
+  --color-primary-verydark: #064d4d;
+
+ /* Gradients */
+  --gradient-primary: linear-gradient(25deg, var(--color-primary-dark) 0%, var(--color-primary) 40%, var(--color-primary) 60%, var(--color-primary-mid) 100%);
+}
+.sfrpg .window-header {
+    font-family: "serpentine", sans-serif;
+    font-size: var(--font-size-14);
+    align-items: center;
+}
+
+.sfrpg button {
+    font-family: "serpentine", sans-serif;
+    background: #0000001a;
+    border: 2px groove #eeede0;
+    color: #000;
+}
+
+.sfrpg.sheet.actor .inventory-list .item .item-name .item-action .attack, .sfrpg.sheet.actor .crew-list .item .item-name .item-action .attack, .sfrpg.sheet.actor .vehicle-system-list .item .item-name .item-action .attack, .sfrpg.sheet.actor .inventory-list .crew .item-name .item-action .attack, .sfrpg.sheet.actor .crew-list .crew .item-name .item-action .attack, .sfrpg.sheet.actor .vehicle-system-list .crew .item-name .item-action .attack, .sfrpg.sheet.actor .inventory-list .item .crew-name .item-action .attack, .sfrpg.sheet.actor .crew-list .item .crew-name .item-action .attack, .sfrpg.sheet.actor .vehicle-system-list .item .crew-name .item-action .attack, .sfrpg.sheet.actor .inventory-list .crew .crew-name .item-action .attack, .sfrpg.sheet.actor .crew-list .crew .crew-name .item-action .attack, .sfrpg.sheet.actor .vehicle-system-list .crew .crew-name .item-action .attack {
+    width: auto;
+    background: #235683;
+    color: #fff;
+    cursor: pointer;
+}
+
+.sfrpg.sheet.actor .inventory-list .item .item-name .item-action .damage, .sfrpg.sheet.actor .crew-list .item .item-name .item-action .damage, .sfrpg.sheet.actor .vehicle-system-list .item .item-name .item-action .damage, .sfrpg.sheet.actor .inventory-list .crew .item-name .item-action .damage, .sfrpg.sheet.actor .crew-list .crew .item-name .item-action .damage, .sfrpg.sheet.actor .vehicle-system-list .crew .item-name .item-action .damage, .sfrpg.sheet.actor .inventory-list .item .crew-name .item-action .damage, .sfrpg.sheet.actor .crew-list .item .crew-name .item-action .damage, .sfrpg.sheet.actor .vehicle-system-list .item .crew-name .item-action .damage, .sfrpg.sheet.actor .inventory-list .crew .crew-name .item-action .damage, .sfrpg.sheet.actor .crew-list .crew .crew-name .item-action .damage, .sfrpg.sheet.actor .vehicle-system-list .crew .crew-name .item-action .damage {
+    width: auto;
+    background: var(--color-primary-mid);
+    color: #fff;
+    cursor: pointer;
+}
+
+.sfrpg.sheet.actor .inventory-list .item .item-utilisation .use, .sfrpg.sheet.actor .crew-list .item .item-utilisation .use, .sfrpg.sheet.actor .vehicle-system-list .item .item-utilisation .use, .sfrpg.sheet.actor .inventory-list .crew .item-utilisation .use, .sfrpg.sheet.actor .crew-list .crew .item-utilisation .use, .sfrpg.sheet.actor .vehicle-system-list .crew .item-utilisation .use {
+    background: #ecde70;
+    color: #000;
+    cursor: pointer;
+}
+
+.sfrpg.sheet.actor h4.box-title {
+
+    font-size: var(--font-size-14);
+
+}
+
+.sfrpg.sheet.actor ul.attributes li.attribute .attribute-value {
+    height: 28px;
+    line-height: 28px;
+	font-family: "serpentine", sans-serif;
+}
+
+.window-app .window-header {
+    background: var(--gradient-primary);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom: none;
+}
+
+h1, h2, h3, h4 {
+	font-family: "serpentine", sans-serif;
+	color: var(--color-primary-verydark);
+}
+
+.sfrpg .window-content {
+    font-size: var(--font-size-13);
+    color: #191813;
+    font-family: "serpentine", sans-serif;
+}
+
+.window-app {
+    font-family: "serpentine", sans-serif;
+}
+
+.sfrpg.sheet .sheet-navigation {
+    background: linear-gradient(130deg, #0c2d4a, #235683 40%, #235683 60%, #1d7dd1);
+    flex: 0 0 30px;
+    margin-bottom: 3px;
+    font-family: "serpentine", sans-serif;
+}
+
+
+.sfrpg.sheet .sheet-navigation .item.active {
+    background: var(--color-primary);
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] {
+	display: none;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel].active {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] .alternity-spellbook-filters {
+	flex: 0 0 auto;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] .alternity-spellbook-heading {
+	width: 100%;
+}
+
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] .alternity-spellbook-heading > label {
+	width: 100%;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] .alternity-spellbook-heading .box-title {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] .alternity-spellbook-heading .alternity-spell-create {
+	margin-left: auto;
+	white-space: nowrap;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] .alternity-power-row {
+	display: grid;
+	grid-template-columns: 120px repeat(3, minmax(56px, 72px)) minmax(82px, 104px);
+	gap: 6px;
+	align-items: center;
+	padding: 0 5px;
+	flex: 0 0 auto;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] .alternity-power-label {
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] .alternity-power-input {
+	width: 100%;
+	text-align: center;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] .alternity-power-bonus-field {
+	display: grid;
+	grid-template-columns: 1fr 20px;
+	gap: 4px;
+	align-items: center;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] > .notes {
+	flex: 0 0 auto;
+	margin: 0 5px;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] > .inventory-list {
+	flex: 1 1 auto;
+	min-height: 0;
+	height: auto;
+	margin: 0;
+	padding: 0 5px;
+	overflow-y: auto;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] > .inventory-list > .item-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] .spellbook-header .item-name {
+	flex: 0 0 130px;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] .spellbook-header .item-name h3 {
+	cursor: default;
+}
+
+.sfrpg.sheet.actor .tab[data-alternity-spell-panel] .item-controls {
+	flex: 0 0 44px;
+}

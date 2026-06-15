@@ -1,0 +1,79 @@
+<div class="inventory-filters spellbook-filters alternity-spellbook-filters">
+    <div class="form-group spellcasting-ability alternity-spellbook-heading">
+        <label>
+            <h4 class="attribute-name box-title">
+                <span>{{tabLabel}}</span>
+                {{#if isOwner}}
+                <a class="item-control item-create alternity-spell-create" title="{{createLabel}}" data-spell-kind="{{spellKind}}">
+                    <i class="fas fa-plus"></i> Add
+                </a>
+                {{/if}}
+            </h4>
+        </label>
+    </div>
+</div>
+
+<div class="alternity-power-row" data-tooltip="{{powerTooltip}}">
+    <label class="alternity-power-label">{{powerLabel}}</label>
+    <input type="number" class="alternity-power-input alternity-power-value" data-pool-type="{{spellKind}}" value="{{power.value}}" min="0" />
+
+    <div class="alternity-power-bonus-field">
+        <input type="number" class="alternity-power-input" value="{{power.max}}" readonly />
+        <a class="item-control alternity-power-bonus-edit" data-pool-type="{{spellKind}}" title="{{powerBonusTitle}}"><i class="fas fa-edit"></i></a>
+    </div>
+</div>
+
+{{#if untypedMessage}}
+<p class="notes">{{untypedMessage}}</p>
+{{/if}}
+{{#if invalidMessage}}
+<p class="notes">{{invalidMessage}}</p>
+{{/if}}
+
+<ol class="inventory-list">
+{{#each sections as |section|}}
+    <li class="item flexrow inventory-header spellbook-header">
+        <div class="item-name flexrow">
+            <h3 class="noborder">{{section.label}}</h3>
+        </div>
+        <div class="spell-slots"></div>
+        <div class="spell-dc">{{localize "SFRPG.ActionSave"}}</div>
+        <div class="spell-action">{{localize "SFRPG.SpellBook.SpellUsage"}}</div>
+        <div class="item-controls"></div>
+    </li>
+
+    <ol class="item-list">
+    {{#each section.spells as |spell|}}
+        <li class="item flexrow" data-item-id="{{spell.id}}">
+            <div class="item-name flexrow rollable">
+                <div class="item-image" style="background-image: url({{spell.img}})"></div>
+                <h4>{{spell.name}}</h4>
+                {{#if spell.usesTotal}}
+                <div class="item-detail spell-uses">
+                    {{localize "SFA.Spells.Uses"}}
+                    <span>{{spell.usesValue}} / {{spell.usesTotal}}</span>
+                </div>
+                {{/if}}
+            </div>
+
+            <div class="spell-comps">
+                {{#if spell.concentration}}
+                <span class="spell-component" data-tooltip="<strong>{{ localize "SFRPG.Items.Spell.Concentration" }}</strong><br>{{ localize "SFRPG.Items.Spell.ConcentrationTooltip" }}">C</span>
+                {{/if}}
+            </div>
+            <div class="spell-dc">{{spell.saveLabel}}</div>
+            <div class="spell-action">{{spell.activationLabel}}</div>
+
+            {{#if ../../isOwner}}
+            <div class="item-controls">
+                <a class="item-control item-edit" title="{{localize "SFRPG.SpellBook.EditItem"}}"><i class="fas fa-edit"></i></a>
+                <a class="item-control item-delete" title="{{localize "SFRPG.SpellBook.DeleteItem"}}"><i class="fas fa-trash"></i></a>
+            </div>
+            {{/if}}
+        </li>
+    {{/each}}
+    </ol>
+{{else}}
+    <li class="item flexrow"><p class="notes">{{emptyLabel}}</p></li>
+{{/each}}
+</ol>

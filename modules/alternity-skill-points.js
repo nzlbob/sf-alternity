@@ -10,6 +10,7 @@ import {
   createDefaultSpellPools,
   getActorSkillPointFlagData,
   getActorSpellPoolFlagData,
+  getAlternitySpellType,
   getActorXpFlagData,
   getItemSkillPointCost,
   getModuleFlags,
@@ -234,6 +235,93 @@ export async function refreshActorSpellPowerPools(actor, { force = false } = {})
     }
   });
 }
+/**
+ * Applies the effects of a short rest to the provided actor, including the recovery of psionic power points.
+ * @param {Actor} actor - The actor to apply the short rest recovery to.
+ * @param {Object} options - Additional options for the short rest recovery.
+ * @param {number} options.psionicRecovery - The number of psionic power points to recover during the short rest (default: 3).
+ * @return {Promise<void>} A promise that resolves when the short rest recovery has been applied.
+ * @remarks This function checks if the actor is a valid Alternity character and then calculates the new psionic power points based on the recovery amount.
+ */
+
+
+export async function applyAlternityShortRestRecovery(actor, { fxRecovery = 3, psionicRecovery = 3 } = {}) {
+  if (!isAlternityCharacter(actor)) return;
+
+  const updateData = {};
+
+  applyPowerRecovery(updateData, {
+    actor,
+    poolType: FLAG_KEYS.fx,
+    recoveryAmount: fxRecovery
+  });
+
+  applyPowerRecovery(updateData, {
+    actor,
+    poolType: FLAG_KEYS.psionics,
+    recoveryAmount: psionicRecovery
+  });
+
+  console.log("Alternity-SFRPG | applyAlternityShortRestRecovery", {
+    actor: actor.name,
+    actorId: actor.id,
+    fxRecovery,
+    psionicRecovery,
+    updateData
+  });
+
+  if (foundry.utils.isEmpty(updateData)) return;
+
+  await actor.update(updateData, {
+    [MODULE_ID]: {
+      skipAlternityRefresh: true
+    }
+  });
+}
+
+export async function applyAlternityLongRestRecovery(actor) {
+  if (!isAlternityCharacter(actor)) return;
+
+  const updateData = {};
+
+  applyFullPowerRecovery(updateData, { actor, poolType: FLAG_KEYS.fx });
+  applyFullPowerRecovery(updateData, { actor, poolType: FLAG_KEYS.psionics });
+
+  console.log("Alternity-SFRPG | applyAlternityLongRestRecovery", {
+    actor: actor.name,
+    actorId: actor.id,
+    updateData
+  });
+
+  if (foundry.utils.isEmpty(updateData)) return;
+
+  await actor.update(updateData, {
+    [MODULE_ID]: {
+      skipAlternityRefresh: true
+    }
+  });
+}
+
+function applyPowerRecovery(updateData, { actor, poolType, recoveryAmount }) {
+  const currentPool = getActorSpellPoolFlagData(actor, poolType);
+  const currentValue = Math.max(Number(currentPool?.value ?? 0) || 0, 0);
+  const currentMax = Math.max(Number(currentPool?.max ?? currentPool?.maximum ?? 0) || 0, 0);
+  if (currentMax <= 0 || recoveryAmount <= 0) return;
+
+  const nextValue = Math.min(currentValue + recoveryAmount, currentMax);
+  if (nextValue === currentValue) return;
+
+  updateData[`flags.${MODULE_ID}.${poolType}.power.value`] = nextValue;
+}
+
+function applyFullPowerRecovery(updateData, { actor, poolType }) {
+  const currentPool = getActorSpellPoolFlagData(actor, poolType);
+  const currentValue = Math.max(Number(currentPool?.value ?? 0) || 0, 0);
+  const currentMax = Math.max(Number(currentPool?.max ?? currentPool?.maximum ?? 0) || 0, 0);
+  if (currentMax <= 0 || currentValue === currentMax) return;
+
+  updateData[`flags.${MODULE_ID}.${poolType}.power.value`] = currentMax;
+}
 
 export async function refreshActorExperience(actor, { force = false } = {}) {
   if (!isAlternityCharacter(actor)) return;
@@ -278,7 +366,13 @@ function calculateActorSpellPowerPool(actor, poolType) {
 
 function getActorSpellPowerBase(actor, poolType) {
   const abilityKey = poolType === FLAG_KEYS.psionics ? "wis" : "int";
-  return Math.max(Number(actor.system?.abilities?.[abilityKey]?.value ?? 0) || 0, 0);
+  const abilityValue = Math.max(Number(actor.system?.abilities?.[abilityKey]?.value ?? 0) || 0, 0);
+  const archetypeSettings = getActorArchetypeSettings(actor);
+  const factor = poolType === FLAG_KEYS.psionics
+    ? archetypeSettings.psionicPowerFactor
+    : archetypeSettings.fxPowerFactor;
+
+  return Math.max(Math.round(abilityValue * factor), 0);
 }
 
 export function calculateActorSkillPointTotals(actor) {
@@ -321,10 +415,20 @@ export function calculateActorSkillPointTotals(actor) {
 
   const itemBreakdown = [];
   let flawBonus = 0;
+  const archetypeSettings =  getActorArchetypeSettings(actor);
+  console.log("Calculating skill points for", actor.name);
+  console.log("Archetype Settings:", archetypeSettings);
+  let hasFxSpell = false;
+  let hasPsionicSpell = false;
+
   for (const item of actor.items) {
     const costData = getItemSkillPointCost(item);
 
     if (item.type === "spell") {
+      const spellType = getAlternitySpellType(item);
+      hasFxSpell ||= spellType === FLAG_KEYS.fx;
+      hasPsionicSpell ||= spellType === FLAG_KEYS.psionics;
+
       const base = Math.max(Number(costData.base ?? 0) || 0, 0);
       if (base <= 0) continue;
 
@@ -338,6 +442,7 @@ export function calculateActorSkillPointTotals(actor) {
         type: item.type,
         category: costData.category || item.type,
         base,
+        source: "item",
         level,
         cost
       });
@@ -375,6 +480,35 @@ export function calculateActorSkillPointTotals(actor) {
     used += cost;
   }
 
+  if ( archetypeSettings.fxTalentSkillPointCost > 0) {
+    itemBreakdown.push({
+      id: archetypeSettings.itemId,
+      name: "FX Talent",
+      type: "archetypes",
+      category: FLAG_KEYS.fx,
+      base: archetypeSettings.fxTalentSkillPointCost,
+      source: "archetype-talent",
+      cost: archetypeSettings.fxTalentSkillPointCost
+    });
+    used += archetypeSettings.fxTalentSkillPointCost;
+  }
+
+  if ( archetypeSettings.psionicTalentSkillPointCost > 0) {
+    itemBreakdown.push({
+      id: archetypeSettings.itemId,
+      name: "Psionic Talent",
+      type: "archetypes",
+      category: FLAG_KEYS.psionics,
+      base: archetypeSettings.psionicTalentSkillPointCost,
+      source: "archetype-talent",
+      cost: archetypeSettings.psionicTalentSkillPointCost
+    });
+    used += archetypeSettings.psionicTalentSkillPointCost;
+    //console.log(archtypeSettings, hasFxSpell, hasPsionicSpell);
+// console.log("Used:", used, "Flaw Bonus:", flawBonus);
+  }
+
+
   const available = startingBase + intelligenceBonus + levelProgression + speciesAdjustment + flawBonus;
 
   return {
@@ -406,6 +540,17 @@ function getActorSpeciesSkillPointAdjustment(actor) {
   if (!speciesItem) return 0;
 
   return Number(speciesItem.getFlag(MODULE_ID, `${FLAG_KEYS.species}.maxSkillPointsAdjustment`) ?? 0) || 0;
+}
+
+function getActorArchetypeSettings(actor) {
+  const archetypeItem = actor.items.find((item) => item.type === "archetypes");
+  return {
+    itemId: archetypeItem?.id ?? null,
+    fxPowerFactor: Math.max(Number(archetypeItem?.getFlag(MODULE_ID, `${FLAG_KEYS.archetypes}.fxPowerFactor`) ?? 1) || 1, 0),
+    psionicPowerFactor: Math.max(Number(archetypeItem?.getFlag(MODULE_ID, `${FLAG_KEYS.archetypes}.psionicPowerFactor`) ?? 1) || 1, 0),
+    fxTalentSkillPointCost: Math.max(Number(archetypeItem?.getFlag(MODULE_ID, `${FLAG_KEYS.archetypes}.fxTalentSkillPointCost`) ?? 0) || 0, 0),
+    psionicTalentSkillPointCost: Math.max(Number(archetypeItem?.getFlag(MODULE_ID, `${FLAG_KEYS.archetypes}.psionicTalentSkillPointCost`) ?? 0) || 0, 0)
+  };
 }
 
 function calculateRankCost(ranks, costData) {

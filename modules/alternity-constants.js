@@ -15,6 +15,7 @@ export const FLAG_KEYS = {
   xp: "xp",
   skillPoints: "skillPoints",
   skillPointCost: "skillPointCost",
+  archetypes: "archetypes",
   species: "species",
   spellPools: "spellPools",
   fx: "fx",
@@ -157,7 +158,7 @@ export const NEW_ALTERNITY_SKILLS = {
   pro977: {
     ...DEFAULT_NEW_SKILL_TEMPLATE,
     ability: "dex",
-    subname: "Special Weapons",
+    subname: "Spell Weapons",
     id: "pro977"
   }
 };
@@ -313,6 +314,12 @@ export function createDefaultItemFlags(item = null) {
       base: 0,
       multiplier: 1,
       isFlaw: false
+    },
+    [FLAG_KEYS.archetypes]: {
+      fxPowerFactor: 1,
+      psionicPowerFactor: 1,
+      fxTalentSkillPointCost: 0,
+      psionicTalentSkillPointCost: 0
     },
     [FLAG_KEYS.species]: {
       maxSkillPointsAdjustment: 0

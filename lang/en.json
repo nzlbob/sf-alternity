@@ -1,4 +1,29 @@
 {
+    "TYPES": {
+        "Item": {
+            "archetypes": "FX and Psionic Features"
+        }
+    },
+    "SFRPG": {
+        "ArchetypesAlternateClassFeatures": "FX and Psionic Features",
+        "FeatureCategory": {
+            "ArchetypeFeature": "FX and Psionic Feature"
+        },
+        "ActorSheet": {
+            "Features": {
+                "Categories": {
+                    "ArchetypeFeatures": "FX and Psionic Features",
+                    "Archetypes": "FX and Psionic Features",
+                    "Theme": "Nationality"
+                }
+            }
+        },
+        "Items": {
+            "Categories": {
+                "Archetypes": "FX and Psionics"
+            }
+        }
+    },
     "SFA": {
         "CombatRoles": {
             "Trap": "Trap",
@@ -59,6 +84,27 @@
             "Uses": "Uses",
             "NewFX": "New FX Spell",
             "NewPsionic": "New Psionic Spell"
+        },
+        "Archetypes": {
+            "PowerSettings": {
+                "Header": "Actor FX / Psionic Settings",
+                "FXFactor": {
+                    "Label": "FX Power Factor",
+                    "Hint": "Multiplies Intelligence when calculating the actor's FX power pool."
+                },
+                "PsionicFactor": {
+                    "Label": "Psionic Power Factor",
+                    "Hint": "Multiplies Will when calculating the actor's psionic power pool. Each Mindwalker starts with psionic energy points equal to his or her Will score. A talent or a Diplomat with the Mindwalker secondary profession has psionic energy points equal to one-half his or her Will score (rounded up). Psionic Energy Points: Talent .5×Will, Diplomat(Mindwalker) .5x Will, Mindwalker 1×Will, Fraal 1.5×Will"
+                },
+                "FXCost": {
+                    "Label": "FX Talent Skill Point Cost",
+                    "Hint": "Default base skill point cost for FX spell talents on actors using this archetype."
+                },
+                "PsionicCost": {
+                    "Label": "Psionic Talent Skill Point Cost",
+                    "Hint": "Default base skill point cost for psionic talents on actors using this archetype."
+                }
+            }
         },
         "Species": {
             "MaxSkillPointsAdjustment": {

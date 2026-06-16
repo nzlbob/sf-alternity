@@ -6,6 +6,8 @@ import {
   SETTING_KEYS
 } from "./alternity-constants.js";
 import {
+  applyAlternityLongRestRecovery,
+  applyAlternityShortRestRecovery,
   initializeAllAlternityActorModifiers,
   initializeAllAlternityActorSkills,
   initializeAlternityActorModifiers,
@@ -127,6 +129,7 @@ Hooks.on("createItem", (item, options) => {
   void initializeAlternityItemFlags(item);
   if (item.actor?.type === "character") {
     void refreshActorSkillPointTotals(item.actor);
+    void refreshActorSpellPowerPools(item.actor);
   }
 });
 
@@ -134,6 +137,7 @@ Hooks.on("updateItem", (item, update, options) => {
   if (!isAlternityEnabled() || options?.[MODULE_ID]?.skipAlternityRefresh) return;
   if (item.actor?.type === "character") {
     void refreshActorSkillPointTotals(item.actor);
+    void refreshActorSpellPowerPools(item.actor);
   }
 });
 
@@ -141,6 +145,7 @@ Hooks.on("deleteItem", (item, options) => {
   if (!isAlternityEnabled() || options?.[MODULE_ID]?.skipAlternityRefresh) return;
   if (item.actor?.type === "character") {
     void refreshActorSkillPointTotals(item.actor, {force: true});
+    void refreshActorSpellPowerPools(item.actor, {force: true});
   }
 });
 
@@ -167,6 +172,26 @@ Hooks.on("renderCompendiumDirectory", (_app, html) => {
 Hooks.on("renderItemSheet", (app, html) => {
   if (!isAlternityEnabled()) return;
   applyAlternityRaceSheetAugment(app, html);
+});
+
+Hooks.on("onActorRest", (restResults) => {
+  if (!isAlternityEnabled()) return;
+  if (restResults?.actor?.type !== "character") return;
+
+  console.log("Alternity-SFRPG | onActorRest", {
+    actor: restResults.actor?.name,
+    actorId: restResults.actor?.id,
+    restType: restResults?.restType
+  });
+
+  if (restResults?.restType === "short") {
+    void applyAlternityShortRestRecovery(restResults.actor);
+    return;
+  }
+
+  if (restResults?.restType === "long") {
+    void applyAlternityLongRestRecovery(restResults.actor);
+  }
 });
 
 function isCoreSfrpgPack(pack) {

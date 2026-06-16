@@ -1,5 +1,6 @@
 import { MODULE_ID } from "./alternity-constants.js";
 
+const ARCHETYPES_TEMPLATE = "modules/sf-alternity/templates/items/sfa-archetypes.hbs";
 const FEAT_TEMPLATE = "modules/sf-alternity/templates/items/sfa-feat.hbs";
 const SPELL_TEMPLATE = "modules/sf-alternity/templates/items/sfa-spell.hbs";
 
@@ -16,6 +17,12 @@ export function registerAlternityItemSheets() {
     }
   }
 
+  class AlternityArchetypesSheet extends ItemSheetSFRPG {
+    get template() {
+      return ARCHETYPES_TEMPLATE;
+    }
+  }
+
   class AlternityFeatSheet extends ItemSheetSFRPG {
     get template() {
       return FEAT_TEMPLATE;
@@ -26,6 +33,12 @@ export function registerAlternityItemSheets() {
     types: ["spell"],
     makeDefault: true,
     label: "Alternity Spell Sheet"
+  });
+
+  Items.registerSheet(MODULE_ID, AlternityArchetypesSheet, {
+    types: ["archetypes"],
+    makeDefault: true,
+    label: "Alternity Archetypes Sheet"
   });
 
   Items.registerSheet(MODULE_ID, AlternityFeatSheet, {

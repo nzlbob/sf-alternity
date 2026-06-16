@@ -35,7 +35,7 @@
 "packs": [
     {
       "name": "sfa_characters",
-      "label": "Bonus Actors",
+      "label": "Actors",
       "system": "sfrpg",
       "type": "Actor",
       "path": "./packs/sfa_characters",
@@ -47,7 +47,7 @@
     },
         {
       "name": "sfa_macros",
-      "label": "Bonus Macros",
+      "label": "Macros",
       "system": "sfrpg",
       "type": "Macro",
       "path": "./packs/sfa_macros",
@@ -62,7 +62,7 @@
     ,
         {
       "name": "sfa_items",
-      "label": "Bonus Items",
+      "label": "Items",
       "system": "sfrpg",
       "type": "Item",
       "path": "./packs/sfa_items",

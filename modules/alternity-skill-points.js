@@ -287,6 +287,7 @@ export function calculateActorSkillPointTotals(actor) {
   const intelligenceScore = getIntelligenceScore(actor);
   const intelligenceBonus = Math.round(intelligenceScore * settings.intelligenceMultiplier);
   const startingBase = settings.startingSkillPointsBase;
+  const speciesAdjustment = getActorSpeciesSkillPointAdjustment(actor);
 
   let levelProgression = 0;
   for (let level = 2; level <= actorLevel; level += 1) {
@@ -374,7 +375,7 @@ export function calculateActorSkillPointTotals(actor) {
     used += cost;
   }
 
-  const available = startingBase + intelligenceBonus + levelProgression + flawBonus;
+  const available = startingBase + intelligenceBonus + levelProgression + speciesAdjustment + flawBonus;
 
   return {
     available,
@@ -386,6 +387,7 @@ export function calculateActorSkillPointTotals(actor) {
       startingBase,
       intelligenceBonus,
       levelProgression,
+      speciesAdjustment,
       flawBonus,
       skills: skillBreakdown,
       items: itemBreakdown,
@@ -397,6 +399,13 @@ export function calculateActorSkillPointTotals(actor) {
       }
     }
   };
+}
+
+function getActorSpeciesSkillPointAdjustment(actor) {
+  const speciesItem = actor.items.find((item) => item.type === "race");
+  if (!speciesItem) return 0;
+
+  return Number(speciesItem.getFlag(MODULE_ID, `${FLAG_KEYS.species}.maxSkillPointsAdjustment`) ?? 0) || 0;
 }
 
 function calculateRankCost(ranks, costData) {

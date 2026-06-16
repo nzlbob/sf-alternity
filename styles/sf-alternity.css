@@ -57,6 +57,15 @@
 
 }
 
+.sfrpg.chat-card .card-content>* {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+    font-size: medium;
+	margin: 0.5em 0 0.5em 0;
+}
+
 .sfrpg.sheet.actor ul.attributes li.attribute .attribute-value {
     height: 28px;
     line-height: 28px;

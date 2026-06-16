@@ -15,6 +15,7 @@ export const FLAG_KEYS = {
   xp: "xp",
   skillPoints: "skillPoints",
   skillPointCost: "skillPointCost",
+  species: "species",
   spellPools: "spellPools",
   fx: "fx",
   psionics: "psionics",
@@ -178,6 +179,7 @@ const DEFAULT_BREAKDOWN = {
   startingBase: 0,
   intelligenceBonus: 0,
   levelProgression: 0,
+  speciesAdjustment: 0,
   flawBonus: 0,
   skills: [],
   items: [],
@@ -311,6 +313,9 @@ export function createDefaultItemFlags(item = null) {
       base: 0,
       multiplier: 1,
       isFlaw: false
+    },
+    [FLAG_KEYS.species]: {
+      maxSkillPointsAdjustment: 0
     },
     [FLAG_KEYS.spells]: {
       type: {

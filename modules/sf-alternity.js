@@ -21,7 +21,7 @@ import {
   registerAlternitySkillPointSettings
 } from "./alternity-skill-points.js";
 import { isAlternityActorSheet, registerAlternityActorSheets } from "./alternity-actor-sheets.js";
-import { registerAlternityItemSheets } from "./alternity-item-sheets.js";
+import { applyAlternityRaceSheetAugment, registerAlternityItemSheets } from "./alternity-item-sheets.js";
 import { applyAlternityActorSheetOverlay } from "./alternity-sheet-overlays.js";
 import { registerAlternitySpellcasting } from "./alternity-spellcasting.js";
 import { applyAlternitySpellbookTabs } from "./alternity-spellbook-tabs.js";
@@ -162,6 +162,11 @@ Hooks.on("renderActorSheet", (app, html) => {
 
 Hooks.on("renderCompendiumDirectory", (_app, html) => {
   hideCoreSfrpgCompendiumSidebarEntries(html);
+});
+
+Hooks.on("renderItemSheet", (app, html) => {
+  if (!isAlternityEnabled()) return;
+  applyAlternityRaceSheetAugment(app, html);
 });
 
 function isCoreSfrpgPack(pack) {

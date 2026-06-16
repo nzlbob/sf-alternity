@@ -59,6 +59,12 @@
             "Uses": "Uses",
             "NewFX": "New FX Spell",
             "NewPsionic": "New Psionic Spell"
+        },
+        "Species": {
+            "MaxSkillPointsAdjustment": {
+                "Label": "Maximum Skill Point Adjustment",
+                "Hint": "Adds or removes available Alternity skill points for characters of this species."
+            }
         }
     }
 }

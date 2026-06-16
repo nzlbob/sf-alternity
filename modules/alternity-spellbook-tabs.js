@@ -238,6 +238,10 @@ function bindSpellPanelListeners(app, panel) {
     rollable.addEventListener("click", (event) => onRollSpell(app, event));
   }
 
+  for (const itemRow of panel.querySelectorAll('.item[draggable="true"]')) {
+    itemRow.addEventListener("dragstart", (event) => onSpellDragStart(app, event));
+  }
+
   for (const editButton of panel.querySelectorAll(".item-edit")) {
     editButton.addEventListener("click", (event) => onEditSpell(app, event));
   }
@@ -307,6 +311,12 @@ function onEditSpell(app, event) {
   event.preventDefault();
   const item = getActorItemFromEvent(app, event);
   item?.sheet?.render(true);
+}
+
+function onSpellDragStart(app, event) {
+  if (typeof app._onDragStart === "function") {
+    app._onDragStart(event);
+  }
 }
 
 function onDeleteSpell(app, event) {

@@ -6,7 +6,11 @@ export const SETTING_KEYS = {
   startingSkillPointsBase: "startingSkillPointsBase",
   intelligenceMultiplier: "intelligenceMultiplier",
   levelSkillPointBase: "levelSkillPointBase",
-  levelSkillPointIncrement: "levelSkillPointIncrement"
+  levelSkillPointIncrement: "levelSkillPointIncrement",
+  shortRestResolveFx: "shortRestResolveFx",
+  shortRestResolvePsionics: "shortRestResolvePsionics",
+  shortRestFxRecoveryFormula: "shortRestFxRecoveryFormula",
+  shortRestPsionicRecoveryFormula: "shortRestPsionicRecoveryFormula"
 };
 
 export const FLAG_KEYS = {

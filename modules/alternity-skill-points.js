@@ -79,6 +79,46 @@ export function registerAlternitySkillPointSettings() {
       }
     }
   });
+
+  game.settings.register(MODULE_ID, SETTING_KEYS.shortRestResolveFx, {
+    name: "SFA.Settings.ShortRestResolveFx.Name",
+    hint: "SFA.Settings.ShortRestResolveFx.Hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: false
+  });
+
+  game.settings.register(MODULE_ID, SETTING_KEYS.shortRestResolvePsionics, {
+    name: "SFA.Settings.ShortRestResolvePsionics.Name",
+    hint: "SFA.Settings.ShortRestResolvePsionics.Hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
+    requiresReload: false
+  });
+
+  game.settings.register(MODULE_ID, SETTING_KEYS.shortRestFxRecoveryFormula, {
+    name: "SFA.Settings.ShortRestFxRecoveryFormula.Name",
+    hint: "SFA.Settings.ShortRestFxRecoveryFormula.Hint",
+    scope: "world",
+    config: true,
+    type: String,
+    default: "3",
+    requiresReload: false
+  });
+
+  game.settings.register(MODULE_ID, SETTING_KEYS.shortRestPsionicRecoveryFormula, {
+    name: "SFA.Settings.ShortRestPsionicRecoveryFormula.Name",
+    hint: "SFA.Settings.ShortRestPsionicRecoveryFormula.Hint",
+    scope: "world",
+    config: true,
+    type: String,
+    default: "3",
+    requiresReload: false
+  });
 }
 
 export async function initializeAlternityActorFlags(actor) {
@@ -245,28 +285,58 @@ export async function refreshActorSpellPowerPools(actor, { force = false } = {})
  */
 
 
-export async function applyAlternityShortRestRecovery(actor, { fxRecovery = 3, psionicRecovery = 3 } = {}) {
+export async function applyAlternityShortRestRecovery(actor, { restResults = null, fxRecovery, psionicRecovery } = {}) {
   if (!isAlternityCharacter(actor)) return;
 
+  const settings = getShortRestRecoverySettings();
+  const resolvedFxRecovery = normalizeRecoveryAmount(
+    fxRecovery ?? evaluateRecoveryFormula(actor, settings.shortRestFxRecoveryFormula, FLAG_KEYS.fx)
+  );
+  const resolvedPsionicRecovery = normalizeRecoveryAmount(
+    psionicRecovery ?? evaluateRecoveryFormula(actor, settings.shortRestPsionicRecoveryFormula, FLAG_KEYS.psionics)
+  );
+
+  const recoveryPlans = [
+    {
+      ...getPowerRecoveryPlan(actor, { poolType: FLAG_KEYS.fx, recoveryAmount: resolvedFxRecovery }),
+      requiresResolve: settings.shortRestResolveFx
+    },
+    {
+      ...getPowerRecoveryPlan(actor, { poolType: FLAG_KEYS.psionics, recoveryAmount: resolvedPsionicRecovery }),
+      requiresResolve: settings.shortRestResolvePsionics
+    }
+  ].filter((plan) => plan.poolType);
+
+  if (recoveryPlans.length <= 0) return;
+
   const updateData = {};
-
-  applyPowerRecovery(updateData, {
-    actor,
-    poolType: FLAG_KEYS.fx,
-    recoveryAmount: fxRecovery
+  const resolvePoints = Math.max(Number(actor.system?.attributes?.rp?.value ?? 0) || 0, 0);
+  const spentResolveOnCoreShortRest = Math.max(Number(restResults?.deltaResolve ?? 0) || 0, 0);
+  const freeRecoveryPlans = recoveryPlans.filter((plan) => plan.requiresResolve !== true);
+  const resolveRecoveryPlans = recoveryPlans.filter((plan) => plan.requiresResolve === true);
+  const selectedResolveRecoveryPlans = await selectShortRestResolveRecoveryPlans(actor, {
+    resolvePoints,
+    spentResolveOnCoreShortRest,
+    recoveryPlans: resolveRecoveryPlans
   });
+  const requiredResolve = selectedResolveRecoveryPlans.length;
 
-  applyPowerRecovery(updateData, {
-    actor,
-    poolType: FLAG_KEYS.psionics,
-    recoveryAmount: psionicRecovery
-  });
+  if (requiredResolve > 0) {
+    updateData["system.attributes.rp.value"] = Math.max(resolvePoints - requiredResolve, 0);
+  }
+
+  for (const recoveryPlan of [...freeRecoveryPlans, ...selectedResolveRecoveryPlans]) {
+    applyPowerRecovery(updateData, recoveryPlan);
+  }
 
   console.log("Alternity-SFRPG | applyAlternityShortRestRecovery", {
     actor: actor.name,
     actorId: actor.id,
-    fxRecovery,
-    psionicRecovery,
+    fxRecovery: resolvedFxRecovery,
+    psionicRecovery: resolvedPsionicRecovery,
+    requiredResolve,
+    spentResolveOnCoreShortRest,
+    recoveryPlans,
     updateData
   });
 
@@ -276,6 +346,116 @@ export async function applyAlternityShortRestRecovery(actor, { fxRecovery = 3, p
     [MODULE_ID]: {
       skipAlternityRefresh: true
     }
+  });
+}
+
+async function selectShortRestResolveRecoveryPlans(actor, { resolvePoints, spentResolveOnCoreShortRest, recoveryPlans }) {
+  if (!Array.isArray(recoveryPlans) || recoveryPlans.length <= 0) return [];
+
+  if (resolvePoints <= 0) {
+    console.warn(`${MODULE_ID} | Skipping short-rest FX/psionic recovery for ${actor.name}; no resolve points remain after core short-rest processing.`, {
+      actorId: actor.id,
+      spentResolveOnCoreShortRest,
+      recoveryPlans
+    });
+    return [];
+  }
+
+  const selectedPoolTypes = await promptForShortRestResolveRecovery(actor, {
+    resolvePoints,
+    spentResolveOnCoreShortRest,
+    recoveryPlans
+  });
+
+  if (!selectedPoolTypes || selectedPoolTypes.length <= 0) return [];
+  return recoveryPlans.filter((plan) => selectedPoolTypes.includes(plan.poolType));
+}
+
+async function promptForShortRestResolveRecovery(actor, { resolvePoints, spentResolveOnCoreShortRest, recoveryPlans }) {
+  const promptChoices = recoveryPlans.map((plan) => ({
+    poolType: plan.poolType,
+    label: getPowerLabel(plan.poolType),
+    recoveryAmount: plan.recoveryAmount,
+    currentValue: plan.currentValue,
+    nextValue: plan.nextValue,
+    currentMax: plan.currentMax,
+    checked: resolvePoints >= recoveryPlans.length
+  }));
+
+  const optionRows = promptChoices.map((choice) => `
+    <label class="sfa-short-rest-option" style="display:flex; align-items:flex-start; gap:0.5rem; margin:0 0 0.75rem;">
+      <input type="checkbox" name="alternityResolveRecovery" value="${choice.poolType}" ${choice.checked ? "checked" : ""}>
+      <span>
+        <strong>${foundry.utils.escapeHTML(choice.label)}</strong><br>
+        ${game.i18n.format("SFA.Rest.ShortRecoveryPrompt.Option", {
+          recovery: choice.recoveryAmount,
+          current: choice.currentValue,
+          next: choice.nextValue,
+          max: choice.currentMax
+        })}
+      </span>
+    </label>`).join("");
+
+  const content = `
+    <form class="sfa-short-rest-recovery-form">
+      <p>${game.i18n.format("SFA.Rest.ShortRecoveryPrompt.Description", {
+        actorName: foundry.utils.escapeHTML(actor.name),
+        resolvePoints,
+        spentResolveOnCoreShortRest
+      })}</p>
+      ${optionRows}
+      <p class="notes">${game.i18n.format("SFA.Rest.ShortRecoveryPrompt.ResolveBudget", {
+        resolvePoints
+      })}</p>
+    </form>`;
+
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (value) => {
+      if (settled) return;
+      settled = true;
+      resolve(value);
+    };
+
+    const dialog = new Dialog({
+      title: game.i18n.localize("SFA.Rest.ShortRecoveryPrompt.Title"),
+      content,
+      buttons: {
+        apply: {
+          label: game.i18n.localize("SFA.Rest.ShortRecoveryPrompt.Apply"),
+          callback: (html) => {
+            const selectedPoolTypes = Array.from(html[0]?.querySelectorAll('input[name="alternityResolveRecovery"]:checked') ?? [])
+              .map((input) => String(input.value));
+            finish(selectedPoolTypes);
+          }
+        },
+        skip: {
+          icon: '<i class="fas fa-times"></i>',
+          label: game.i18n.localize("SFA.Rest.ShortRecoveryPrompt.Skip"),
+          callback: () => finish([])
+        }
+      },
+      default: "apply",
+      close: () => finish([]),
+      render: (html) => {
+        const root = html[0];
+        if (!root) return;
+        const inputs = Array.from(root.querySelectorAll('input[name="alternityResolveRecovery"]'));
+        for (const input of inputs) {
+          input.addEventListener("change", () => {
+            const selectedCount = inputs.filter((checkbox) => checkbox.checked).length;
+            if (selectedCount <= resolvePoints) return;
+
+            input.checked = false;
+            ui.notifications.warn(game.i18n.format("SFA.Rest.ShortRecoveryPrompt.ResolveWarning", {
+              resolvePoints
+            }));
+          });
+        }
+      }
+    });
+
+    dialog.render(true);
   });
 }
 
@@ -302,16 +482,29 @@ export async function applyAlternityLongRestRecovery(actor) {
   });
 }
 
-function applyPowerRecovery(updateData, { actor, poolType, recoveryAmount }) {
+function getPowerRecoveryPlan(actor, { poolType, recoveryAmount }) {
   const currentPool = getActorSpellPoolFlagData(actor, poolType);
   const currentValue = Math.max(Number(currentPool?.value ?? 0) || 0, 0);
   const currentMax = Math.max(Number(currentPool?.max ?? currentPool?.maximum ?? 0) || 0, 0);
-  if (currentMax <= 0 || recoveryAmount <= 0) return;
+  const normalizedRecoveryAmount = normalizeRecoveryAmount(recoveryAmount);
+  if (currentMax <= 0 || normalizedRecoveryAmount <= 0) return {};
 
-  const nextValue = Math.min(currentValue + recoveryAmount, currentMax);
-  if (nextValue === currentValue) return;
+  const nextValue = Math.min(currentValue + normalizedRecoveryAmount, currentMax);
+  if (nextValue === currentValue) return {};
 
-  updateData[`flags.${MODULE_ID}.${poolType}.power.value`] = nextValue;
+  return {
+    poolType,
+    currentValue,
+    currentMax,
+    recoveryAmount: normalizedRecoveryAmount,
+    nextValue
+  };
+}
+
+function applyPowerRecovery(updateData, recoveryPlan) {
+  if (!recoveryPlan?.poolType) return;
+
+  updateData[`flags.${MODULE_ID}.${recoveryPlan.poolType}.power.value`] = recoveryPlan.nextValue;
 }
 
 function applyFullPowerRecovery(updateData, { actor, poolType }) {
@@ -581,6 +774,42 @@ function getSkillPointSettings() {
     levelSkillPointBase: Number(game.settings.get(MODULE_ID, SETTING_KEYS.levelSkillPointBase) ?? 4) || 4,
     levelSkillPointIncrement: Number(game.settings.get(MODULE_ID, SETTING_KEYS.levelSkillPointIncrement) ?? 1) || 1
   };
+}
+
+function getShortRestRecoverySettings() {
+  return {
+    shortRestResolveFx: game.settings.get(MODULE_ID, SETTING_KEYS.shortRestResolveFx) === true,
+    shortRestResolvePsionics: game.settings.get(MODULE_ID, SETTING_KEYS.shortRestResolvePsionics) === true,
+    shortRestFxRecoveryFormula: String(game.settings.get(MODULE_ID, SETTING_KEYS.shortRestFxRecoveryFormula) ?? "3").trim() || "0",
+    shortRestPsionicRecoveryFormula: String(game.settings.get(MODULE_ID, SETTING_KEYS.shortRestPsionicRecoveryFormula) ?? "3").trim() || "0"
+  };
+}
+
+function evaluateRecoveryFormula(actor, formula, poolType) {
+  const trimmedFormula = String(formula ?? "0").trim();
+  if (!trimmedFormula) return 0;
+
+  try {
+    const roll = Roll.create(trimmedFormula, actor?.getRollData?.() ?? {});
+    const evaluated = roll.evaluateSync();
+    return normalizeRecoveryAmount(evaluated.total);
+  } catch (error) {
+    console.warn(`${MODULE_ID} | Failed to evaluate short-rest recovery formula for ${poolType}.`, {
+      actor: actor?.name,
+      actorId: actor?.id,
+      formula: trimmedFormula,
+      error
+    });
+    return 0;
+  }
+}
+
+function normalizeRecoveryAmount(value) {
+  return Math.max(Math.floor(Number(value) || 0), 0);
+}
+
+function getPowerLabel(poolType) {
+  return game.i18n.localize(poolType === FLAG_KEYS.fx ? "SFA.Spells.FXPower" : "SFA.Spells.PsionicPower");
 }
 
 function getSkillRankCostData(skillKey) {

@@ -55,6 +55,22 @@
             "LevelSkillPointIncrement": {
                 "Name": "Per-Level Skill Point Increment",
                 "Hint": "Additional scaling applied per level above 1 when calculating earned Alternity skill points."
+            },
+            "ShortRestResolveFx": {
+                "Name": "Spend Resolve To Restore FX Power",
+                "Hint": "If enabled, a 10-minute rest spends 1 Resolve Point to restore FX power. Recovery only applies when enough Resolve remains after the core short rest is processed."
+            },
+            "ShortRestResolvePsionics": {
+                "Name": "Spend Resolve To Restore Psionic Power",
+                "Hint": "If enabled, a 10-minute rest spends 1 Resolve Point to restore psionic power. Recovery only applies when enough Resolve remains after the core short rest is processed."
+            },
+            "ShortRestFxRecoveryFormula": {
+                "Name": "FX Power Rest Recovery Formula",
+                "Hint": "Number or roll formula for FX power restored by a 10-minute rest. Supports @ references from actor roll data."
+            },
+            "ShortRestPsionicRecoveryFormula": {
+                "Name": "Psionic Power Rest Recovery Formula",
+                "Hint": "Number or roll formula for psionic power restored by a 10-minute rest. Supports @ references from actor roll data."
             }
         },
         "Spells": {
@@ -110,6 +126,17 @@
             "MaxSkillPointsAdjustment": {
                 "Label": "Maximum Skill Point Adjustment",
                 "Hint": "Adds or removes available Alternity skill points for characters of this species."
+            }
+        },
+        "Rest": {
+            "ShortRecoveryPrompt": {
+                "Title": "Alternity Short Rest Recovery",
+                "Description": "Choose which Alternity pools {actorName} should restore by spending Resolve Points after this short rest.",
+                "Option": "Restore {recovery} power, from {current} to {next} of {max}.",
+                "ResolveBudget": "You can spend up to {resolvePoints} Resolve Point(s) on this additional recovery.",
+                "ResolveWarning": "You do not have enough Resolve Points for that selection.",
+                "Apply": "Apply Recovery",
+                "Skip": "Skip"
             }
         }
     }

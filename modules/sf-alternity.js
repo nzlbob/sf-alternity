@@ -185,7 +185,7 @@ Hooks.on("onActorRest", (restResults) => {
   });
 
   if (restResults?.restType === "short") {
-    void applyAlternityShortRestRecovery(restResults.actor);
+    void applyAlternityShortRestRecovery(restResults.actor, { restResults });
     return;
   }
 

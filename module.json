@@ -1,38 +1,48 @@
 {
-"id": "sf-alternity",
+  "id": "sf-alternity",
   "title": "Starfinder Alternity Overlay",
   "description": "A module that adds an overlay to the Starfinder RPG system, allowing players to easily manage their Alternity crew and NPCs.",
-
   "authors": [
     {
       "name": "bob",
       "flags": {}
     }
   ],
-  "version": "0.14.02",
+  "version": "0.14.03",
   "compatibility": {
     "minimum": "13",
     "verified": "14",
     "maximum": "14"
   },
-    "esmodules": [
+  "esmodules": [
     "modules/sf-alternity.js"
   ],
-  
   "packFolders": [
     {
       "name": "SF Alternity Overlay",
       "packs": [
         "sfa_characters",
+        "sfa_gm_characters",
         "sfa_macros",
-        "sfa_items"
+        "sfa_items",
+        "sfa_gm_items",
+        "sfa_starships",
+        "sfa_gm_starships",
+        "sfa_starship-components",
+        "sfa_gm_starship-components",
+        "sfa_implementation-journal"
       ],
       "color": "#19d6b7"
-    }   
-
+    },
+    {
+      "name": "Alternity Overrides",
+      "packs": [
+        "races",
+        "equipment"
+      ]
+    }
   ],
-
-"packs": [
+  "packs": [
     {
       "name": "sfa_characters",
       "label": "Actors",
@@ -41,11 +51,11 @@
       "path": "./packs/sfa_characters",
       "ownership": {
         "PLAYER": "OBSERVER",
-        "TRUSTED": "OBSERVER",
+        "TRUSTED": "OWNER",
         "ASSISTANT": "OWNER"
       }
     },
-        {
+    {
       "name": "sfa_macros",
       "label": "Macros",
       "system": "sfrpg",
@@ -53,14 +63,11 @@
       "path": "./packs/sfa_macros",
       "ownership": {
         "PLAYER": "OBSERVER",
-        "TRUSTED": "OBSERVER",
+        "TRUSTED": "OWNER",
         "ASSISTANT": "OWNER"
       }
-    }
-    
-    
-    ,
-        {
+    },
+    {
       "name": "sfa_items",
       "label": "Items",
       "system": "sfrpg",
@@ -68,12 +75,126 @@
       "path": "./packs/sfa_items",
       "ownership": {
         "PLAYER": "OBSERVER",
-        "TRUSTED": "OBSERVER",
+        "TRUSTED": "OWNER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "sfa_starships",
+      "label": "Starships",
+      "system": "sfrpg",
+      "type": "Actor",
+      "path": "./packs/sfa_starships",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "TRUSTED": "OWNER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "sfa_gm_starships",
+      "label": "GM Starships",
+      "system": "sfrpg",
+      "type": "Actor",
+      "path": "./packs/sfa_gm_starships",
+      "ownership": {
+        "PLAYER": "NONE",
+        "TRUSTED": "NONE",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "sfa_starship-components",
+      "label": "Starship Components",
+      "system": "sfrpg",
+      "type": "Item",
+      "path": "./packs/sfa_starship-components",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "TRUSTED": "OWNER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "sfa_gm_starship-components",
+      "label": "GM Starship Components",
+      "system": "sfrpg",
+      "type": "Item",
+      "path": "./packs/sfa_gm_starship-components",
+      "ownership": {
+        "PLAYER": "NONE",
+        "TRUSTED": "NONE",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "sfa_gm_characters",
+      "label": "GM Actors",
+      "system": "sfrpg",
+      "type": "Actor",
+      "path": "./packs/sfa_gm_characters",
+      "ownership": {
+        "PLAYER": "NONE",
+        "TRUSTED": "NONE",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "sfa_gm_items",
+      "label": "GM Items",
+      "system": "sfrpg",
+      "type": "Item",
+      "path": "./packs/sfa_gm_items",
+      "ownership": {
+        "PLAYER": "NONE",
+        "TRUSTED": "NONE",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "sfa_starship-actions",
+      "label": "Starship Actions",
+      "path": "./packs/starship-actions",
+      "type": "Item",
+      "system": "sfrpg",
+      "ownership": {
+        "PLAYER": "NONE",
+        "TRUSTED": "NONE",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "sfa_implementation-journal",
+      "label": "Starfinder Alternity Implementation Notes",
+      "path": "./packs/implementation-journal",
+      "system": "sfrpg",
+      "type": "JournalEntry"
+    },
+    {
+      "name": "races",
+      "label": "Alternity Species (Override)",
+      "path": "./packs/races",
+      "type": "Item",
+      "system": "sfrpg",
+      "ownership": {
+        "PLAYER": "NONE",
+        "TRUSTED": "NONE",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "equipment",
+      "label": "Alternity Equipment (Override)",
+      "path": "./packs/equipment",
+      "type": "Item",
+      "system": "sfrpg",
+      "ownership": {
+        "PLAYER": "NONE",
+        "TRUSTED": "NONE",
         "ASSISTANT": "OWNER"
       }
     }
   ],
-
   "languages": [
     {
       "lang": "en",
@@ -81,12 +202,9 @@
       "path": "lang/en.json",
       "flags": {}
     }
-    
-  ],   
-     "flags": {},
-      "banner": "modules/sf-alternity/images/system/sf-alternity_01.webp",
-
-
+  ],
+  "flags": {},
+  "banner": "modules/sf-alternity/images/system/sf-alternity_01.webp",
   "styles": [
     "styles/sf-alternity.css"
   ],

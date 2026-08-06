@@ -3,13 +3,25 @@ import { MODULE_ID } from "./alternity-constants.js";
 const ARCHETYPES_TEMPLATE = "modules/sf-alternity/templates/items/sfa-archetypes.hbs";
 const FEAT_TEMPLATE = "modules/sf-alternity/templates/items/sfa-feat.hbs";
 const SPELL_TEMPLATE = "modules/sf-alternity/templates/items/sfa-spell.hbs";
+const RACE_TEMPLATE = "modules/sf-alternity/templates/items/sfa-race.hbs";
+const CLASS_TEMPLATE = "modules/sf-alternity/templates/items/sfa-class.hbs";
+
+export function randomAbilities() {
+  console.log("Hello World");
+}
 
 export function registerAlternityItemSheets() {
   const ItemSheetSFRPG = game.sfrpg?.applications?.ItemSheetSFRPG;
   if (!ItemSheetSFRPG) {
-    console.warn("sf-alternity | Could not locate SFRPG item sheet class for spell sheet registration.");
+    console.warn("sf-alternity | Could not locate SFRPG item sheet class for item sheet registration.");
     return;
   }
+
+  const ItemSheetSFRPGClass =
+    game.sfrpg?.applications?.ItemSheetSFRPGClass
+    ?? game.sfrpg?.applications?.item?.ItemSheetSFRPGClass
+    ?? game.sfrpg?.applications?.sheets?.ItemSheetSFRPGClass
+    ?? ItemSheetSFRPG;
 
   class AlternitySpellSheet extends ItemSheetSFRPG {
     get template() {
@@ -26,6 +38,18 @@ export function registerAlternityItemSheets() {
   class AlternityFeatSheet extends ItemSheetSFRPG {
     get template() {
       return FEAT_TEMPLATE;
+    }
+  }
+
+  class AlternityRaceSheet extends ItemSheetSFRPG {
+    get template() {
+      return RACE_TEMPLATE;
+    }
+  }
+// remember to load parials!!!!
+  class AlternityClassSheet extends ItemSheetSFRPGClass {
+    get template() {
+      return CLASS_TEMPLATE;
     }
   }
 
@@ -46,6 +70,18 @@ export function registerAlternityItemSheets() {
     makeDefault: true,
     label: "Alternity Feat Sheet"
   });
+
+  Items.registerSheet(MODULE_ID, AlternityRaceSheet, {
+    types: ["race"],
+    makeDefault: true,
+    label: "Alternity Race Sheet"
+  });
+
+  Items.registerSheet(MODULE_ID, AlternityClassSheet, {
+    types: ["class"],
+    makeDefault: true,
+    label: "Alternity Class Sheet"
+  });
 }
 
 export function applyAlternityRaceSheetAugment(app, html) {
@@ -54,27 +90,12 @@ export function applyAlternityRaceSheetAugment(app, html) {
   const root = html instanceof jQuery ? html[0] : html;
   if (!root) return;
 
-  if (root.querySelector(`[data-${MODULE_ID}-species-adjustment]`)) return;
-
-  const target = root.querySelector('.tab[data-tab="details"] .bubble .bubble-info')
-    ?? root.querySelector('.tab[data-tab="details"]')
-    ?? root.querySelector("form");
-  if (!target) return;
-
-  const currentValue = Number(app.item.getFlag(MODULE_ID, "species.maxSkillPointsAdjustment") ?? 0) || 0;
-  const localizedLabel = game.i18n.localize("SFA.Species.MaxSkillPointsAdjustment.Label");
-  const localizedHint = game.i18n.localize("SFA.Species.MaxSkillPointsAdjustment.Hint");
-
-  const wrapper = document.createElement("div");
-  wrapper.className = "form-group";
-  wrapper.setAttribute(`data-${MODULE_ID}-species-adjustment`, "true");
-  wrapper.innerHTML = `
-    <label>${localizedLabel}</label>
-    <div class="form-fields">
-      <input type="number" name="flags.${MODULE_ID}.species.maxSkillPointsAdjustment" value="${currentValue}" step="1" data-dtype="Number" />
-    </div>
-    <p class="notes">${localizedHint}</p>
-  `;
-
-  target.append(wrapper);
+  const randomAbilitiesButton = root.querySelector(".sfa-random-abilities-button");
+  if (randomAbilitiesButton && randomAbilitiesButton.dataset.sfaBound !== "true") {
+    randomAbilitiesButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      randomAbilities();
+    });
+    randomAbilitiesButton.dataset.sfaBound = "true";
+  }
 }

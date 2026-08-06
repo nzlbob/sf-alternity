@@ -14,10 +14,92 @@ export function applyAlternityActorSheetOverlay(app, html) {
     replaceSkillRankSummary(root, skillPointData);
     replaceSkillRankColumnLabel(root);
     relabelSkillRankInputs(app, root, actor);
-    replaceExperienceDisplay(app, root, actor, xpData);
+   // replaceExperienceDisplay(app, root, actor, xpData);
+  }
+
+  if (actor.type === "npc2") {
+    const skillPointData = getActorSkillPointFlagData(actor);
+    injectNpc2SkillPointSummary(app, root, actor, skillPointData);
   }
 
   relabelProfessionSkills(root, actor);
+}
+
+export function applyAlternityStarshipSheetOverlay(app, html) {
+  const actor = app?.actor;
+  if (actor?.type !== "starship") return;
+
+  const root = html instanceof jQuery ? html[0] : html;
+  if (!root) return;
+
+  for (const row of root.querySelectorAll("ol.attribute-multibox > li.flexrow")) {
+    const label = row.querySelector(":scope > label");
+    if (!label) continue;
+
+    const text = label.textContent?.trim();
+    if (text === "AC") {
+      label.textContent = "KAC";
+      continue;
+    }
+
+    if (text === "TL") {
+      label.textContent = "EAC";
+    }
+  }
+}
+
+function injectNpc2SkillPointSummary(app, root, actor, skillPointData) {
+  const list = root.querySelector("ul.skills-list");
+  if (!list) return;
+
+  let row = list.querySelector("li.alternity-npc2-skill-points");
+  if (!row) {
+    row = document.createElement("li");
+    row.className = "skill flexrow alternity-npc2-skill-points";
+    list.insertBefore(row, list.firstChild ?? null);
+  }
+
+  row.innerHTML = `
+    <span class="alternity-npc2-skill-points-label" style="display:flex; align-items:center; gap:0.25rem; white-space:nowrap; min-width:0;">
+      <strong>Skill Points:</strong>
+      <span>${skillPointData.used} / ${skillPointData.available}</span>
+    </span>
+    <a class="alternity-npc2-skill-recalc" role="button" aria-label="Recalculate NPC2 skill points" title="Recalculate NPC2 skill points" style="margin-left:auto; flex:0 0 auto; display:inline-flex; align-items:center; justify-content:center;">
+      <i class="fas fa-sync-alt"></i>
+    </a>
+  `;
+  row.style.display = "flex";
+  row.style.alignItems = "center";
+  row.style.justifyContent = "space-between";
+  row.style.gap = "0.5rem";
+  row.style.flexWrap = "nowrap";
+  row.classList.toggle("red", skillPointData.used > skillPointData.available);
+  row.setAttribute("data-tooltip", `Alternity NPC2 Skill Points: ${skillPointData.used} used / ${skillPointData.available} available`);
+
+  bindNpc2SkillPointRecalcButton(app, actor, row);
+}
+
+function bindNpc2SkillPointRecalcButton(app, actor, row) {
+  const button = row.querySelector(".alternity-npc2-skill-recalc");
+  if (!button || button.dataset.alternityBound === "true") return;
+
+  button.addEventListener("click", async (event) => {
+    event.preventDefault();
+    if (button.dataset.alternityBusy === "true") return;
+
+    button.dataset.alternityBusy = "true";
+    button.classList.add("disabled");
+
+    try {
+      await refreshActorSkillPointTotals(actor, { force: true });
+      void app.render(false);
+    } finally {
+      button.dataset.alternityBusy = "false";
+      button.classList.remove("disabled");
+    }
+  });
+
+  button.dataset.alternityBound = "true";
 }
 
 function replaceSkillRankSummary(root, skillPointData) {

@@ -1,10 +1,27 @@
 {
     "TYPES": {
         "Item": {
-            "archetypes": "FX and Psionic Features"
+            "archetypes": "FX and Psionic Features",
+            "starshipDriftEngine": "Starship FTL Engine"
         }
     },
     "SFRPG": {
+        "SizeTiny": "Small",
+        "SizeSmall": "Light",
+        "SizeMedium": "Medium",
+        "SizeLarge": "Medium-Heavy",
+        "SizeHuge": "Heavy",
+        "SizeGargantuan": "Super-Heavy",
+        "SizeSupercolossal": "Space Station",
+        "WeaponTypesSolarian": "Spell Attacks",
+        "WeaponTypesSpecial": "Ranged Weapons",
+        "WeaponPropertiesHarrying": "Burst",
+        "WeaponPropertiesHarryingTooltip": "Burst is a hail of ammunition aimed at a single target. The attacker receives a +2 bonus to his skill check. A Critical Failure result when using a weapon in burst mode indicates that the weapon has jammed. A successful Engineering DC25 check is needed to unjam a weapon. Burst uses 3 rounds of ammunition.",
+        "WeaponPropertiesExtinguish": "Fire",
+        "WeaponPropertiesExtinguishTooltip": "Fire is a single attack aimed at a single target. It involves the use of one control die and one situation die, as with all normal actions.",
+        "WeaponPropertiesAutomatic": "Autofire",
+        "WeaponPropertiesAutomaticTooltip": "Autofire is a burst from an automatic weapon that is walked across its target instead of aimed. Up to three different targets within 6 meters of each other can be affected by autofire (the first target must be within 6 meters of the third target, with the second target falling somewhere between them). An autofire attack expends three bursts of ammunition from a weapon's clip. Autofire uses 9 rounds of ammunition.",
+        "WeaponCategoriesSonic": "Stunning weapons",
         "ArchetypesAlternateClassFeatures": "FX and Psionic Features",
         "FeatureCategory": {
             "ArchetypeFeature": "FX and Psionic Feature"
@@ -18,9 +35,85 @@
                 }
             }
         },
+        "ItemSheet": {
+            "StarshipAblativeArmor": {
+                "TargetLockPenalty": "EAC Penalty",
+                "TargetLockPenaltyTooltip": "The penalty applied to the ship's EAC. (not used?)"
+            },
+            "StarshipDriftEngine": {
+                "EngineRatingTooltip": "The Engine Rating for this FTL engine.",
+                "Header": "FTL Engine Properties"
+            },
+            "StarshipArmor": {
+                "ArmorBonus": "Kinetic Armor Class Bonus",
+                "ArmorBonusTooltip": "The kinetic armor class bonus provided by this armor.",
+                "TargetLockPenalty": "Energy Armor Class Bonus",
+                "TargetLockPenaltyTooltip": "The energy armor class bonus provided by this armor."
+            },
+            "StarshipDefensiveCountermeasure": {
+                "Header": "Defensive Systems Properties",
+                "TargetLockBonus": "Energy Armor Class Bonus",
+                "TargetLockBonusTooltip": "The energy armor class bonus provided by this defensive system."
+            },
+            "StarshipShield": {
+                "ArmorBonus": "Kinetic Armor Class Bonus",
+                "ArmorBonusTooltip": "The armor class bonus provided by this shield.",
+                "IsDeflector": "Is Defensive System?",
+                "ShieldTypeTooltip": "Is this shield a Defensive System (Add KAC / EAC bonuses)?",
+                "TargetLockBonus": "Energy Armor Class Bonus",
+                "TargetLockBonusTooltip": "The bonus applied to the ship's Energy Armor Class."
+            }
+        },
+        "StarshipSheet": {
+            "Features": {
+                "Prefixes": {
+                    "StarshipDriftEngine": "FTL Engine"
+                }
+            },
+            "Attributes": {
+                "DriftRating": "FTL Range"
+            },
+            "Header": {
+                "Movement": {
+                    "Speed": "Accel",
+                    "Turn": "Mvr"
+                }
+            }
+        },
         "Items": {
             "Categories": {
-                "Archetypes": "FX and Psionics"
+                "Archetypes": "FX and Psionics",
+                "StarshipDriftEngine": "Starship FTL Engine"
+            },
+            "Action": {
+                "AbilityModifier": "Ability Modifier",
+                "ActionTarget": {
+                    "StarshipAC": "KAC",
+                    "StarshipTL": "EAC"
+                }
+            },
+            "Quadrants": {
+                "ArmorClass": "Kinetic Armor Class",
+                "TargetLock": "Energy Armor Class"
+            }
+        },
+        "Damage": {
+            "Types": {
+                "Sonic": "Stunning",
+                "Acid": "Mass"
+            }
+        },
+        "Descriptors": {
+            "Sonic": "Stunning",
+            "Acid": "Mass"
+        },
+        "ShipSystems": {
+            "Maneuverability": {
+                "Average": "Average (Mvr 2)",
+                "Clumsy": "Clumsy  (Mvr 0)",
+                "Good": "Good (Mvr 3)",
+                "Perfect": "Perfect (Mvr 4)",
+                "Poor": "Poor  (Mvr 1)"
             }
         }
     },
@@ -35,6 +128,18 @@
             "EnableOverlay": {
                 "Name": "Enable Alternity Overlay",
                 "Hint": "Activates Alternity-style skill point, achievement, and class overlays."
+            },
+            "AutoAddUnarmedStrike": {
+                "Name": "Auto Add Unarmed Attack",
+                "Hint": "When enabled, sf-alternity adds the Unarmed Attack weapon to new characters and disables SFRPG's UUID-based unarmed auto-add setting."
+            },
+            "AbilityConversion": {
+                "Name": "Ability Score Conversion",
+                "Hint": "For NPC's only, Characters use Alternity conversion Item (Feat) If enabled, converts core ability scores from their Alternity values to the closest SFRPG equivalent when calculating derived values for actors. For example, an Intelligence score of 12 would be treated as 14 for the purposes of calculating skill points and FX power, while a score of 8 would be treated as 6.  "
+            },
+            "SkillRankLimitOffset": {
+                "Name": "Skill Rank Limit Offset",
+                "Hint": "Adjusts the maximum allowed skill ranks for characters. Final cap is actor level plus this offset (for example, +2 allows level + 2)."
             },
             "HideCoreCompendiums": {
                 "Name": "Hide Core SFRPG Compendiums",
@@ -56,6 +161,10 @@
                 "Name": "Per-Level Skill Point Increment",
                 "Hint": "Additional scaling applied per level above 1 when calculating earned Alternity skill points."
             },
+            "SpecialtySkillRule2C": {
+                "Name": "Optional Rule 2C: Flat Specialty Rank Cost",
+                "Hint": "When enabled, purchasing rank 2 or higher in a specialty (non-class) skill uses list price only; existing ranks do not increase the advancement cost."
+            },
             "ShortRestResolveFx": {
                 "Name": "Spend Resolve To Restore FX Power",
                 "Hint": "If enabled, a 10-minute rest spends 1 Resolve Point to restore FX power. Recovery only applies when enough Resolve remains after the core short rest is processed."
@@ -71,6 +180,11 @@
             "ShortRestPsionicRecoveryFormula": {
                 "Name": "Psionic Power Rest Recovery Formula",
                 "Hint": "Number or roll formula for psionic power restored by a 10-minute rest. Supports @ references from actor roll data."
+            }
+        },
+        "Rolls": {
+            "Starship": {
+                "NPC2CrewAbilityCorrection": "NPC2 crew ability correction"
             }
         },
         "Spells": {
@@ -124,8 +238,25 @@
         },
         "Species": {
             "MaxSkillPointsAdjustment": {
-                "Label": "Maximum Skill Point Adjustment",
+                "Label": "Skill Point Adjustment",
                 "Hint": "Adds or removes available Alternity skill points for characters of this species."
+            },
+            "MaxSkillPointsAdjustmentClass": {
+                "Label": "Skill Point Adjustment",
+                "Hint": "Adds or removes available Alternity skill points for characters of this class."
+            },
+            "RandomAbilityFormulas": {
+                "Header": "Random Ability Formulas",
+                "Hint": "Formulas used when rolling this species' random abilities (for example: 2d8+2).",
+                "Min": "Min",
+                "Max": "Max",
+                "Formula": "Formula",
+                "STR": "STR",
+                "DEX": "DEX",
+                "CON": "CON",
+                "INT": "INT",
+                "WIL": "WIL",
+                "PER": "PER"
             }
         },
         "Rest": {

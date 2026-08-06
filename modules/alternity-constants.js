@@ -1,16 +1,25 @@
 export const MODULE_ID = "sf-alternity";
 
+
+
+
+
 export const SETTING_KEYS = {
   enableOverlay: "enableAlternity",
+  autoAddUnarmedStrike: "autoAddUnarmedStrike",
   hideCoreCompendiums: "hideCoreSfrpgCompendiums",
+  abilityConversion: "abilityConversion",
+  skillRankLimitOffset: "skillRankLimitOffset",
   startingSkillPointsBase: "startingSkillPointsBase",
   intelligenceMultiplier: "intelligenceMultiplier",
   levelSkillPointBase: "levelSkillPointBase",
   levelSkillPointIncrement: "levelSkillPointIncrement",
+  specialtySkillRule2C: "specialtySkillRule2C",
   shortRestResolveFx: "shortRestResolveFx",
   shortRestResolvePsionics: "shortRestResolvePsionics",
   shortRestFxRecoveryFormula: "shortRestFxRecoveryFormula",
   shortRestPsionicRecoveryFormula: "shortRestPsionicRecoveryFormula"
+
 };
 
 export const FLAG_KEYS = {
@@ -64,6 +73,7 @@ export const DEFAULT_SKILL_RANK_COSTS_BYSKILL = {
 "ste" :{"basecost":3,"rankcost":4},
 "sur" :{"basecost":2,"rankcost":3},
 "pro" :{"basecost":1,"rankcost":3},
+"pro960" :{"basecost":3,"rankcost":3},
 "pro970" :{"basecost":2,"rankcost":3},
 "pro971" :{"basecost":2,"rankcost":4},
 "pro972" :{"basecost":2,"rankcost":4},
@@ -71,7 +81,11 @@ export const DEFAULT_SKILL_RANK_COSTS_BYSKILL = {
 "pro974" :{"basecost":2,"rankcost":4},
 "pro975" :{"basecost":2,"rankcost":4},
 "pro976" :{"basecost":1,"rankcost":2},
-"pro977" :{"basecost":0,"rankcost":5}
+"pro977" :{"basecost":0,"rankcost":5},
+"pro978" :{"basecost":0,"rankcost":5},
+"pro990" :{"basecost":0,"rankcost":4},
+"pro991" :{"basecost":2,"rankcost":3},
+
 
 
 
@@ -116,7 +130,44 @@ Template
 }
  */
 
+export const NEW_ALTERNITY_globalAttackRollModifiers = [
+       {
+        "bonus": {
+            "_id": "bobs-id-random01",
+            "name": "2 Actions I",
+            "modifier": "2-2d4",
+            "type": "untyped",
+            "enabled": false,
+            "modifierType": "formula",
+            "subtab": "temporary",
+            "max": -6,
+            "notes": ""
+        }
+    },
+   {
+        "bonus": {
+            "_id": "bobs-id-random02",
+            "name": "2 Actions II",
+            "modifier": "4-4d4",
+            "type": "untyped",
+            "enabled": false,
+            "modifierType": "formula",
+            "subtab": "temporary",
+            "max": -12,
+            "notes": ""
+        }
+    }
+]
+
+
+
 export const NEW_ALTERNITY_SKILLS = {
+    pro960: {
+    ...DEFAULT_NEW_SKILL_TEMPLATE,
+    ability: "int",
+    subname: "Tactics",
+    id: "pro960"
+  },
   pro970: {
     ...DEFAULT_NEW_SKILL_TEMPLATE,
     ability: "str",
@@ -155,15 +206,33 @@ export const NEW_ALTERNITY_SKILLS = {
   },
   pro976: {
     ...DEFAULT_NEW_SKILL_TEMPLATE,
-    ability: "dex",
+    ability: "str",
     subname: "Grenades",
     id: "pro976"
   },
   pro977: {
     ...DEFAULT_NEW_SKILL_TEMPLATE,
     ability: "dex",
-    subname: "Spell Weapons",
+    subname: "Ranged Weapons",
     id: "pro977"
+  },
+  pro978: {
+    ...DEFAULT_NEW_SKILL_TEMPLATE,
+    ability: "dex",
+    subname: "Spell Weapons",
+    id: "pro978"
+  },
+  pro990: {
+    ...DEFAULT_NEW_SKILL_TEMPLATE,
+    ability: "con",
+    subname: "Stamina",
+    id: "pro990"
+  },
+  pro991: {
+    ...DEFAULT_NEW_SKILL_TEMPLATE,
+    ability: "wis",
+    subname: "Resolve",
+    id: "pro991"
   }
 };
 
@@ -175,7 +244,148 @@ export const ALTERNITY_WEAPON_SKILL_VALUE_AFFECTED = {
   pro974: "heavy",
   pro975: "sniper",
   pro976: "grenade",
-  pro977: "special"
+  pro977: "special",
+  pro978: "solarian"
+};
+
+export const ALTERNITY_STARSHIP_SIZE_MOD = {
+  tiny: 5,
+  small: 3,
+  medium: 0,
+  large: -3,
+  huge: -5,
+  gargantuan: -7,
+  colossal: -9,
+  supercolossal: -11
+};
+
+export const ALTERNITY_STARSHIP_ATTACK_MODIFIER_DEFS = [
+   {
+    id: "LeadershipBonus",
+    nameKey: "Captain Leadership Bonus",
+    modifier: "+1d4-1",
+    enabled: false
+  },
+   {
+    id: "WeaponsBonus",
+    nameKey: "Sensors Weapons Bonus",
+    modifier: "+1d4-1",
+    enabled: false
+  },
+   {
+    id: "ComputerBonusOrd",
+    nameKey: "Computer Bonus (Ordinary)",
+    modifier: "+1d4-1",
+    enabled: false
+  },
+   {
+    id: "ComputerBonusGood",
+    nameKey: "Computer Bonus (Good)",
+    modifier: "+2d4-2",
+    enabled: false
+  },
+     {
+    id: "ComputerBonusAma",
+    nameKey: "Computer Bonus (Amazing)",
+    modifier: "+3d4-3",
+    enabled: false
+  },
+  {
+    id: "RangeShort",
+    nameKey: "Range: Short",
+    modifier: "1-1d4",
+    enabled: false
+  },
+    {
+    id: "RangeMedium",
+    nameKey: "Range: Medium",
+    modifier: "2-2d4",
+    enabled: false
+  },
+    {
+    id: "RangeLong",
+    nameKey: "Range: Long",
+    modifier: "3-3d4",
+    enabled: false
+  },
+  {
+    id: "GenrealBonusp03",
+    nameKey: "+3 Steps General Bonus",
+    modifier: "3d4-3",
+    enabled: false
+  },
+   {
+    id: "GenrealBonusp02",
+    nameKey: "+2 Steps General Bonus",
+    modifier: "2d4-2",
+    enabled: false
+  },
+  {
+    id: "GenrealBonusp01",
+    nameKey: "+1 Steps General Bonus",
+    modifier: "1d4-1",
+    enabled: false
+  },
+  {
+    id: "GenrealBonusm01",
+    nameKey: "-1 Steps General Bonus",
+    modifier: "1-1d4",
+    enabled: false
+  },
+    {
+    id: "GenrealBonusm02",
+    nameKey: "-2 Steps General Bonus",
+    modifier: "2-2d4",
+    enabled: false
+  },
+    {
+    id: "GenrealBonusm03",
+    nameKey: "-3 Steps General Bonus",
+    modifier: "3-3d4",
+    enabled: false
+  },
+];
+
+
+export const ALTERNITY_CHARACTER_EXP_LEVELS = 
+[
+0,6, 13, 21, 30, 40, 51, 63, 76, 90, 105, 121, 138, 156, 175, 195, 216, 238, 261, 285, 310, 336, 363, 391, 420, 450, 481, 513, 546, 580, 615, 651, 688, 726, 765, 805, 846, 888, 931, 975, 1020, 1066, 1113, 1161, 1210, 1260, 1311, 1363, 1416, 1470, 1525, 1581, 1638, 
+    
+]
+export const ALTERNITY_STARSHIP_SYSTEM_STATUS = {
+    "nominal": "Nominal",
+    "glitching": "Glitching",
+    "malfunctioning": "Malfunctioning",
+    "destroyed": "Destroyed"
+};
+export const ALTERNITY_STARSHIP_WEAPON_CLASS = {
+
+  "light": "Light",
+    "heavy": "Heavy",
+    "capital": "Capital",
+    "spinal": "Spinal"
+}
+export const ALTERNITY_STARSHIP_MANEUVERABILITY_MAP = {
+    "clumsy": {
+        "pilotingBonus": 0,
+        "turn": 1
+    },
+    "poor": {
+        "pilotingBonus": 0,
+        "turn": 1
+    },
+    "average": {
+        "pilotingBonus": 0,
+        "turn": 2
+    },
+    "good": {
+        "pilotingBonus": 0,
+        "turn": 3
+    },
+    "perfect": {
+        "pilotingBonus": 0,
+        "turn": 4
+    }
 };
 
 const DEFAULT_BREAKDOWN = {
@@ -326,7 +536,15 @@ export function createDefaultItemFlags(item = null) {
       psionicTalentSkillPointCost: 0
     },
     [FLAG_KEYS.species]: {
-      maxSkillPointsAdjustment: 0
+      maxSkillPointsAdjustment: 0,
+      abilityRanges: {
+        str: { min: 0, max: 0, formula: "" },
+        dex: { min: 0, max: 0, formula: "" },
+        con: { min: 0, max: 0, formula: "" },
+        int: { min: 0, max: 0, formula: "" },
+        wil: { min: 0, max: 0, formula: "" },
+        per: { min: 0, max: 0, formula: "" }
+      }
     },
     [FLAG_KEYS.spells]: {
       type: {

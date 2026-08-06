@@ -26,7 +26,7 @@ export function registerAlternitySkillPointSettings() {
     scope: "world",
     config: true,
     type: Number,
-    default: 20,
+    default: 30,
     requiresReload: false,
     onChange: () => {
       if (game.ready) {
@@ -41,7 +41,7 @@ export function registerAlternitySkillPointSettings() {
     scope: "world",
     config: true,
     type: Number,
-    default: 2.5,
+    default: 3,
     requiresReload: false,
     onChange: () => {
       if (game.ready) {
@@ -72,6 +72,21 @@ export function registerAlternitySkillPointSettings() {
     config: true,
     type: Number,
     default: 1,
+    requiresReload: false,
+    onChange: () => {
+      if (game.ready) {
+        void refreshAllActorSkillPointTotals();
+      }
+    }
+  });
+
+  game.settings.register(MODULE_ID, SETTING_KEYS.specialtySkillRule2C, {
+    name: "SFA.Settings.SpecialtySkillRule2C.Name",
+    hint: "SFA.Settings.SpecialtySkillRule2C.Hint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false,
     requiresReload: false,
     onChange: () => {
       if (game.ready) {
@@ -163,13 +178,14 @@ export async function initializeAlternityActorSkills(actor) {
 
 export async function initializeAlternityActorModifiers(actor) {
   if (!isAlternitySkillActor(actor)) return;
-
+// disable this
+  return
   const existingModifiers = Array.isArray(actor.system?.modifiers)
     ? foundry.utils.deepClone(actor.system.modifiers)
     : [];
 
   const desiredModifiers = createAlternityActorModifiers(existingModifiers);
-  if (desiredModifiers.length === existingModifiers.length) return;
+  if (!hasDiff(existingModifiers, desiredModifiers)) return;
 
   await actor.update({
     "system.modifiers": desiredModifiers
@@ -200,18 +216,18 @@ export async function initializeAlternityItemFlags(item) {
 
 export async function refreshAllActorSkillPointTotals() {
   for (const actor of game.actors) {
-    if (!isAlternityCharacter(actor)) continue;
+    if (!isAlternitySkillActor(actor)) continue;
     await refreshActorSkillPointTotals(actor, {force: true});
   }
 }
-
+/*
 export async function refreshAllActorExperience() {
   for (const actor of game.actors) {
     if (!isAlternityCharacter(actor)) continue;
     await refreshActorExperience(actor, { force: true });
   }
 }
-
+*/
 export async function initializeAllAlternityActorSkills() {
   for (const actor of game.actors) {
     if (!isAlternitySkillActor(actor)) continue;
@@ -220,6 +236,7 @@ export async function initializeAllAlternityActorSkills() {
 }
 
 export async function initializeAllAlternityActorModifiers() {
+  return
   for (const actor of game.actors) {
     if (!isAlternitySkillActor(actor)) continue;
     await initializeAlternityActorModifiers(actor);
@@ -234,7 +251,7 @@ export async function refreshAllActorSpellPowerPools() {
 }
 
 export async function refreshActorSkillPointTotals(actor, {force = false} = {}) {
-  if (!isAlternityCharacter(actor)) return;
+  if (!isAlternitySkillActor(actor)) return;
 
   const totals = calculateActorSkillPointTotals(actor);
   const existing = getActorSkillPointFlagData(actor);
@@ -289,31 +306,40 @@ export async function applyAlternityShortRestRecovery(actor, { restResults = nul
   if (!isAlternityCharacter(actor)) return;
 
   const settings = getShortRestRecoverySettings();
-  const resolvedFxRecovery = normalizeRecoveryAmount(
-    fxRecovery ?? evaluateRecoveryFormula(actor, settings.shortRestFxRecoveryFormula, FLAG_KEYS.fx)
-  );
-  const resolvedPsionicRecovery = normalizeRecoveryAmount(
-    psionicRecovery ?? evaluateRecoveryFormula(actor, settings.shortRestPsionicRecoveryFormula, FLAG_KEYS.psionics)
-  );
+  const resolvedFxRecovery = settings.shortRestResolveFx
+    ? normalizeRecoveryAmount(fxRecovery ?? evaluateRecoveryFormula(actor, settings.shortRestFxRecoveryFormula, FLAG_KEYS.fx))
+    : 0;
+  const resolvedPsionicRecovery = settings.shortRestResolvePsionics
+    ? normalizeRecoveryAmount(psionicRecovery ?? evaluateRecoveryFormula(actor, settings.shortRestPsionicRecoveryFormula, FLAG_KEYS.psionics))
+    : 0;
 
-  const recoveryPlans = [
-    {
-      ...getPowerRecoveryPlan(actor, { poolType: FLAG_KEYS.fx, recoveryAmount: resolvedFxRecovery }),
-      requiresResolve: settings.shortRestResolveFx
-    },
-    {
-      ...getPowerRecoveryPlan(actor, { poolType: FLAG_KEYS.psionics, recoveryAmount: resolvedPsionicRecovery }),
-      requiresResolve: settings.shortRestResolvePsionics
+  const recoveryPlans = [];
+  if (settings.shortRestResolveFx) {
+    const fxPlan = getPowerRecoveryPlan(actor, { poolType: FLAG_KEYS.fx, recoveryAmount: resolvedFxRecovery });
+    if (fxPlan.poolType) {
+      recoveryPlans.push({
+        ...fxPlan,
+        requiresResolve: true
+      });
     }
-  ].filter((plan) => plan.poolType);
+  }
+
+  if (settings.shortRestResolvePsionics) {
+    const psionicPlan = getPowerRecoveryPlan(actor, { poolType: FLAG_KEYS.psionics, recoveryAmount: resolvedPsionicRecovery });
+    if (psionicPlan.poolType) {
+      recoveryPlans.push({
+        ...psionicPlan,
+        requiresResolve: true
+      });
+    }
+  }
 
   if (recoveryPlans.length <= 0) return;
 
   const updateData = {};
   const resolvePoints = Math.max(Number(actor.system?.attributes?.rp?.value ?? 0) || 0, 0);
   const spentResolveOnCoreShortRest = Math.max(Number(restResults?.deltaResolve ?? 0) || 0, 0);
-  const freeRecoveryPlans = recoveryPlans.filter((plan) => plan.requiresResolve !== true);
-  const resolveRecoveryPlans = recoveryPlans.filter((plan) => plan.requiresResolve === true);
+  const resolveRecoveryPlans = recoveryPlans;
   const selectedResolveRecoveryPlans = await selectShortRestResolveRecoveryPlans(actor, {
     resolvePoints,
     spentResolveOnCoreShortRest,
@@ -325,7 +351,7 @@ export async function applyAlternityShortRestRecovery(actor, { restResults = nul
     updateData["system.attributes.rp.value"] = Math.max(resolvePoints - requiredResolve, 0);
   }
 
-  for (const recoveryPlan of [...freeRecoveryPlans, ...selectedResolveRecoveryPlans]) {
+  for (const recoveryPlan of selectedResolveRecoveryPlans) {
     applyPowerRecovery(updateData, recoveryPlan);
   }
 
@@ -569,12 +595,16 @@ function getActorSpellPowerBase(actor, poolType) {
 }
 
 export function calculateActorSkillPointTotals(actor) {
+  if (actor?.type === "npc2") {
+    return calculateNpc2SkillPointTotals(actor);
+  }
+
   const actorLevel = getActorLevel(actor);
   const settings = getSkillPointSettings();
   const intelligenceScore = getIntelligenceScore(actor);
   const intelligenceBonus = Math.round(intelligenceScore * settings.intelligenceMultiplier);
   const startingBase = settings.startingSkillPointsBase;
-  const speciesAdjustment = getActorSpeciesSkillPointAdjustment(actor);
+  const speciesAdjustment = getActorSpeciesSkillPointAdjustment(actor) + getActorClassSkillPointAdjustment(actor);
 
   let levelProgression = 0;
   for (let level = 2; level <= actorLevel; level += 1) {
@@ -589,10 +619,11 @@ export function calculateActorSkillPointTotals(actor) {
 
     const costData = getSkillRankCostData(skillKey);
     const isClassSkill = hasClassSkillDiscount(skill);
-    const discountedRankCost = Math.max(costData.rankcost - (isClassSkill ? 1 : 0), 0);
     const cost = calculateRankCost(ranks, {
-      ...costData,
-      rankcost: discountedRankCost
+      ...costData
+    }, {
+      isClassSkill,
+      specialtySkillRule2C: settings.specialtySkillRule2C
     });
     skillBreakdown.push({
       key: skillKey,
@@ -600,7 +631,7 @@ export function calculateActorSkillPointTotals(actor) {
       ranks,
       isClassSkill,
       baseCost: costData.basecost,
-      rankCost: discountedRankCost,
+      rankCost: costData.rankcost,
       cost
     });
     used += cost;
@@ -609,8 +640,8 @@ export function calculateActorSkillPointTotals(actor) {
   const itemBreakdown = [];
   let flawBonus = 0;
   const archetypeSettings =  getActorArchetypeSettings(actor);
-  console.log("Calculating skill points for", actor.name);
-  console.log("Archetype Settings:", archetypeSettings);
+ // console.log("Calculating skill points for", actor.name);
+ // console.log("Archetype Settings:", archetypeSettings);
   let hasFxSpell = false;
   let hasPsionicSpell = false;
 
@@ -722,14 +753,150 @@ export function calculateActorSkillPointTotals(actor) {
         startingSkillPointsBase: settings.startingSkillPointsBase,
         intelligenceMultiplier: settings.intelligenceMultiplier,
         levelSkillPointBase: settings.levelSkillPointBase,
-        levelSkillPointIncrement: settings.levelSkillPointIncrement
+        levelSkillPointIncrement: settings.levelSkillPointIncrement,
+        specialtySkillRule2C: settings.specialtySkillRule2C
       }
     }
   };
 }
 
+export function calculateNpc2SkillPointTotals(actor) {
+  const settings = getSkillPointSettings();
+  const cr = getNpc2CrValue(actor);
+  const intelligenceScore = getIntelligenceScore(actor);
+  const crMinusOne = Math.max(cr - 1, 0);
+
+  const startingBase = settings.startingSkillPointsBase;
+  const intelligenceBonus = Math.round(settings.intelligenceMultiplier * intelligenceScore);
+  const crProgression = (5 * crMinusOne) + triangularNumber(crMinusOne);
+  const available = Math.max(Math.round(startingBase + intelligenceBonus + crProgression), 0);
+//console.log("Calculating NPC2 skill points for", actor.name, available);
+//console.log("Calculating NPC2 skill points for", actor.name, available, "crProgression:", crProgression, "startingBase:", startingBase, "intelligenceBonus:", intelligenceBonus);
+  const skillBreakdown = [];
+  let used = 0;
+
+  for (const [skillKey, skill] of Object.entries(actor.system?.skills ?? {})) {
+    const ranks = Math.max(Number(skill?.ranks ?? 0) || 0, 0);
+    const abilityKey = String(skill?.ability ?? "").toLowerCase();
+    const abilityMod = Number(actor.system?.abilities?.[abilityKey]?.mod ?? 0) || 0;
+    const abilityModA = skillKey.startsWith("pro97") ? 0 : abilityMod;
+    const actualRanks = Math.max(ranks - abilityModA, 0);
+
+    if (actualRanks <= 0) {
+      skillBreakdown.push({
+        key: skillKey,
+        label: skill?.label ?? skillKey,
+        ranks,
+        ability: abilityKey,
+        abilityMod,
+        actualRanks,
+        baseCost: 0,
+        rankCost: 0,
+        cost: 0
+      });
+      continue;
+    }
+
+    const costData = getSkillRankCostData(skillKey);
+    const cost = Math.max(costData.basecost + (costData.rankcost * actualRanks), 0);
+// console.log("NPC2 Skill:", skillKey, "Ranks:", ranks, "Ability:", abilityKey, "Ability Mod:", abilityMod, "Actual Ranks:", actualRanks, "Base Cost:", costData.basecost, "Rank Cost:", costData.rankcost, "Total Cost:", cost);
+    skillBreakdown.push({
+      key: skillKey,
+      label: skill?.label ?? skillKey,
+      ranks,
+      ability: abilityKey,
+      abilityMod,
+      actualRanks,
+      baseCost: costData.basecost,
+      rankCost: costData.rankcost,
+      cost
+    });
+
+    used += cost;
+ //   console.log(skill.label,"costData:", cost, "used:", used);
+  }
+// create a tooltip for the NPC2 skill point calculation listing the skills with ranks and their costs, as well as the total used and remaining skill points
+  const tooltip = [];
+  for (const skill of skillBreakdown) {
+    if (skill.ranks > 0) tooltip.push(`${skill.label}: Ranks ${skill.ranks}, Cost ${skill.cost}`);
+  }
+  tooltip.push(`Total Used: ${used}`);
+  tooltip.push(`Remaining: ${available - used}`);
+
+const returnData = {
+  tooltip,
+    available,
+    used,
+    remaining: available - used,
+    breakdown: {
+      actorLevel: cr,
+      intelligenceScore,
+      startingBase,
+      intelligenceBonus,
+      levelProgression: crProgression,
+      speciesAdjustment: 0,
+      flawBonus: 0,
+      skills: skillBreakdown,
+      items: [],
+      settings: {
+        startingSkillPointsBase: settings.startingSkillPointsBase,
+        intelligenceMultiplier: settings.intelligenceMultiplier,
+        levelSkillPointBase: settings.levelSkillPointBase,
+        levelSkillPointIncrement: settings.levelSkillPointIncrement,
+        specialtySkillRule2C: settings.specialtySkillRule2C,
+        npc2Formula: "startingSkillPointsBase + (intelligenceMultiplier * INT) + (5 * (CR - 1)) + triangularNumber(CR - 1)"
+      }
+    }
+  };
+
+ // console.log("NPC2 Skill Point Calculation Result for", actor.name, returnData);
+
+
+
+  return returnData;
+}
+
+function getNpc2CrValue(actor) {
+  const rawCr = actor?.system?.details?.cr;
+
+  if (typeof rawCr === "number") {
+    return Math.max(rawCr, 0);
+  }
+
+  if (typeof rawCr === "string") {
+    const trimmed = rawCr.trim();
+    if (!trimmed) return 0;
+
+    if (trimmed.includes("/")) {
+      const [numText, denText] = trimmed.split("/");
+      const numerator = Number(numText);
+      const denominator = Number(denText);
+      if (Number.isFinite(numerator) && Number.isFinite(denominator) && denominator !== 0) {
+        return Math.max(numerator / denominator, 0);
+      }
+    }
+
+    const parsed = Number(trimmed);
+    return Number.isFinite(parsed) ? Math.max(parsed, 0) : 0;
+  }
+
+  if (typeof rawCr === "object" && rawCr !== null) {
+    const value = Number(rawCr.value ?? rawCr.base ?? 0);
+    return Number.isFinite(value) ? Math.max(value, 0) : 0;
+  }
+
+  return 0;
+}
+
 function getActorSpeciesSkillPointAdjustment(actor) {
   const speciesItem = actor.items.find((item) => item.type === "race");
+  if (!speciesItem) return 0;
+
+  return Number(speciesItem.getFlag(MODULE_ID, `${FLAG_KEYS.species}.maxSkillPointsAdjustment`) ?? 0) || 0;
+}
+
+function getActorClassSkillPointAdjustment(actor) {
+  const speciesItem = actor.items.find((item) => item.type === "class");
   if (!speciesItem) return 0;
 
   return Number(speciesItem.getFlag(MODULE_ID, `${FLAG_KEYS.species}.maxSkillPointsAdjustment`) ?? 0) || 0;
@@ -746,12 +913,18 @@ function getActorArchetypeSettings(actor) {
   };
 }
 
-function calculateRankCost(ranks, costData) {
+function calculateRankCost(ranks, costData, options = {}) {
   if (ranks <= 0) return 0;
 
   const baseCost = Math.max(Number(costData?.basecost ?? 0) || 0, 0);
   const rankCost = Math.max(Number(costData?.rankcost ?? 0) || 0, 0);
-  return baseCost + (rankCost * ranks);
+  const isClassSkill = options?.isClassSkill === true;
+  const specialtySkillRule2C = options?.specialtySkillRule2C === true;
+
+  const proficiencyDiscount = isClassSkill ? (1 * ranks) : 0;
+  const skillIncrementCost = (specialtySkillRule2C) ? 0 : triangularNumber(ranks - 1);
+
+  return Math.max(baseCost + (rankCost * ranks) - proficiencyDiscount + skillIncrementCost, 0);
 }
 
 function hasClassSkillDiscount(skill) {
@@ -772,7 +945,8 @@ function getSkillPointSettings() {
     startingSkillPointsBase: Number(game.settings.get(MODULE_ID, SETTING_KEYS.startingSkillPointsBase) ?? 20) || 20,
     intelligenceMultiplier: Number(game.settings.get(MODULE_ID, SETTING_KEYS.intelligenceMultiplier) ?? 2.5) || 2.5,
     levelSkillPointBase: Number(game.settings.get(MODULE_ID, SETTING_KEYS.levelSkillPointBase) ?? 4) || 4,
-    levelSkillPointIncrement: Number(game.settings.get(MODULE_ID, SETTING_KEYS.levelSkillPointIncrement) ?? 1) || 1
+    levelSkillPointIncrement: Number(game.settings.get(MODULE_ID, SETTING_KEYS.levelSkillPointIncrement) ?? 1) || 1,
+    specialtySkillRule2C: game.settings.get(MODULE_ID, SETTING_KEYS.specialtySkillRule2C) === true
   };
 }
 
@@ -871,12 +1045,13 @@ function createAlternityActorModifiers(existingModifiers) {
 
   for (const [skillId, valueAffected] of Object.entries(ALTERNITY_WEAPON_SKILL_VALUE_AFFECTED)) {
     const skillLabel = NEW_ALTERNITY_SKILLS[skillId]?.subname ?? skillId;
+    const effectType = skillId === "pro978" ? "spell-attacks" : "weapon-attacks";
     ensureAlternityModifier(desiredModifiers, {
       name: `SF-A ${skillLabel}`,
       modifier: `@skills.${skillId}.ranks`,
       type: "untyped",
       modifierType: "constant",
-      effectType: "weapon-attacks",
+      effectType,
       valueAffected,
       enabled: true,
       source: "",
@@ -892,13 +1067,15 @@ function createAlternityActorModifiers(existingModifiers) {
 }
 
 function ensureAlternityModifier(modifiers, modifierData) {
-  const alreadyPresent = modifiers.some((modifier) => {
+  const existingModifier = modifiers.find((modifier) => {
     return modifier?.name === modifierData.name
-      && modifier?.effectType === modifierData.effectType
       && String(modifier?.valueAffected ?? "") === String(modifierData.valueAffected ?? "");
   });
 
-  if (alreadyPresent) return;
+  if (existingModifier) {
+    Object.assign(existingModifier, modifierData);
+    return;
+  }
 
   modifiers.push({
     _id: foundry.utils.randomID(),

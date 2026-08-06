@@ -77,6 +77,74 @@
                 </div>
             </div>
 
+            {{#if isGM}}
+            <div class="form-group">
+                <button type="button" class="sfa-random-abilities-button">Random Abilities</button>
+            </div>
+
+            <hr />
+            <div class="sfa-species-random-header" style="margin: 6px 0 4px;">
+                <label>{{localize "SFA.Species.RandomAbilityFormulas.Header"}}</label>
+                <p class="notes">{{localize "SFA.Species.RandomAbilityFormulas.Hint"}}</p>
+            </div>
+            <div class="sfa-species-ability-range-list" style="display:grid; gap:6px;">
+                <div class="sfa-species-ability-range-row" style="display:grid; grid-template-columns:48px 28px 72px 28px 72px 54px minmax(120px,1fr); gap:6px; align-items:center; margin:0;">
+                    <label style="margin:0;">{{localize "SFA.Species.RandomAbilityFormulas.STR"}}</label>
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Min"}}</label>
+                    <input type="number" name="flags.sf-alternity.species.abilityRanges.str.min" value="{{item.flags.sf-alternity.species.abilityRanges.str.min}}" step="1" data-dtype="Number" style="width:72px; margin:0; text-align:center;" />
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Max"}}</label>
+                    <input type="number" name="flags.sf-alternity.species.abilityRanges.str.max" value="{{item.flags.sf-alternity.species.abilityRanges.str.max}}" step="1" data-dtype="Number" style="width:72px; margin:0; text-align:center;" />
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Formula"}}</label>
+                    <input type="text" name="flags.sf-alternity.species.abilityRanges.str.formula" value="{{item.flags.sf-alternity.species.abilityRanges.str.formula}}" style="width:100%; min-width:120px; margin:0;" />
+                </div>
+                <div class="sfa-species-ability-range-row" style="display:grid; grid-template-columns:48px 28px 72px 28px 72px 54px minmax(120px,1fr); gap:6px; align-items:center; margin:0;">
+                    <label style="margin:0;">{{localize "SFA.Species.RandomAbilityFormulas.DEX"}}</label>
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Min"}}</label>
+                    <input type="number" name="flags.sf-alternity.species.abilityRanges.dex.min" value="{{item.flags.sf-alternity.species.abilityRanges.dex.min}}" step="1" data-dtype="Number" style="width:72px; margin:0; text-align:center;" />
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Max"}}</label>
+                    <input type="number" name="flags.sf-alternity.species.abilityRanges.dex.max" value="{{item.flags.sf-alternity.species.abilityRanges.dex.max}}" step="1" data-dtype="Number" style="width:72px; margin:0; text-align:center;" />
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Formula"}}</label>
+                    <input type="text" name="flags.sf-alternity.species.abilityRanges.dex.formula" value="{{item.flags.sf-alternity.species.abilityRanges.dex.formula}}" style="width:100%; min-width:120px; margin:0;" />
+                </div>
+                <div class="sfa-species-ability-range-row" style="display:grid; grid-template-columns:48px 28px 72px 28px 72px 54px minmax(120px,1fr); gap:6px; align-items:center; margin:0;">
+                    <label style="margin:0;">{{localize "SFA.Species.RandomAbilityFormulas.CON"}}</label>
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Min"}}</label>
+                    <input type="number" name="flags.sf-alternity.species.abilityRanges.con.min" value="{{item.flags.sf-alternity.species.abilityRanges.con.min}}" step="1" data-dtype="Number" style="width:72px; margin:0; text-align:center;" />
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Max"}}</label>
+                    <input type="number" name="flags.sf-alternity.species.abilityRanges.con.max" value="{{item.flags.sf-alternity.species.abilityRanges.con.max}}" step="1" data-dtype="Number" style="width:72px; margin:0; text-align:center;" />
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Formula"}}</label>
+                    <input type="text" name="flags.sf-alternity.species.abilityRanges.con.formula" value="{{item.flags.sf-alternity.species.abilityRanges.con.formula}}" style="width:100%; min-width:120px; margin:0;" />
+                </div>
+                <div class="sfa-species-ability-range-row" style="display:grid; grid-template-columns:48px 28px 72px 28px 72px 54px minmax(120px,1fr); gap:6px; align-items:center; margin:0;">
+                    <label style="margin:0;">{{localize "SFA.Species.RandomAbilityFormulas.INT"}}</label>
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Min"}}</label>
+                    <input type="number" name="flags.sf-alternity.species.abilityRanges.int.min" value="{{item.flags.sf-alternity.species.abilityRanges.int.min}}" step="1" data-dtype="Number" style="width:72px; margin:0; text-align:center;" />
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Max"}}</label>
+                    <input type="number" name="flags.sf-alternity.species.abilityRanges.int.max" value="{{item.flags.sf-alternity.species.abilityRanges.int.max}}" step="1" data-dtype="Number" style="width:72px; margin:0; text-align:center;" />
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Formula"}}</label>
+                    <input type="text" name="flags.sf-alternity.species.abilityRanges.int.formula" value="{{item.flags.sf-alternity.species.abilityRanges.int.formula}}" style="width:100%; min-width:120px; margin:0;" />
+                </div>
+                <div class="sfa-species-ability-range-row" style="display:grid; grid-template-columns:48px 28px 72px 28px 72px 54px minmax(120px,1fr); gap:6px; align-items:center; margin:0;">
+                    <label style="margin:0;">{{localize "SFA.Species.RandomAbilityFormulas.WIL"}}</label>
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Min"}}</label>
+                    <input type="number" name="flags.sf-alternity.species.abilityRanges.wil.min" value="{{item.flags.sf-alternity.species.abilityRanges.wil.min}}" step="1" data-dtype="Number" style="width:72px; margin:0; text-align:center;" />
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Max"}}</label>
+                    <input type="number" name="flags.sf-alternity.species.abilityRanges.wil.max" value="{{item.flags.sf-alternity.species.abilityRanges.wil.max}}" step="1" data-dtype="Number" style="width:72px; margin:0; text-align:center;" />
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Formula"}}</label>
+                    <input type="text" name="flags.sf-alternity.species.abilityRanges.wil.formula" value="{{item.flags.sf-alternity.species.abilityRanges.wil.formula}}" style="width:100%; min-width:120px; margin:0;" />
+                </div>
+                <div class="sfa-species-ability-range-row" style="display:grid; grid-template-columns:48px 28px 72px 28px 72px 54px minmax(120px,1fr); gap:6px; align-items:center; margin:0;">
+                    <label style="margin:0;">{{localize "SFA.Species.RandomAbilityFormulas.PER"}}</label>
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Min"}}</label>
+                    <input type="number" name="flags.sf-alternity.species.abilityRanges.per.min" value="{{item.flags.sf-alternity.species.abilityRanges.per.min}}" step="1" data-dtype="Number" style="width:72px; margin:0; text-align:center;" />
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Max"}}</label>
+                    <input type="number" name="flags.sf-alternity.species.abilityRanges.per.max" value="{{item.flags.sf-alternity.species.abilityRanges.per.max}}" step="1" data-dtype="Number" style="width:72px; margin:0; text-align:center;" />
+                    <label style="margin:0; text-align:right;">{{localize "SFA.Species.RandomAbilityFormulas.Formula"}}</label>
+                    <input type="text" name="flags.sf-alternity.species.abilityRanges.per.formula" value="{{item.flags.sf-alternity.species.abilityRanges.per.formula}}" style="width:100%; min-width:120px; margin:0;" />
+                </div>
+            </div>
+            {{/if}}
+
             {{!-- Ability Adjustments Formula --}}
             <div class="bubble">
                 <h3 class="bubble-header">

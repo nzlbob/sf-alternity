@@ -7,6 +7,10 @@
   font-family: serpentine-bold ;
   src: url(../fonts/Serpentine-Bold.otf);
 }
+
+
+
+
 :root {
 
   /* Brand Colors */
@@ -19,6 +23,17 @@
  /* Gradients */
   --gradient-primary: linear-gradient(25deg, var(--color-primary-dark) 0%, var(--color-primary) 40%, var(--color-primary) 60%, var(--color-primary-mid) 100%);
 }
+
+#pause img {
+    height: 150px;
+    width: 150px;
+    border: none;
+    box-shadow: none;
+    --fa-animation-duration: 5s;
+    content: url("../images/system/turnmarkers/game_paused_01.webp");
+}
+
+
 
 #hotbar #action-bar .slot {
     position: relative;
@@ -55,7 +70,18 @@
     border: 2px groove #eeede0;
     color: #000;
 }
+.sfrpg.sheet.actor .traits label.narrow
+ {
+    flex: 0 0 90px;
+    font-size: var(--font-size-11);
+}
 
+.sfrpg.sheet select {
+    flex: 1;
+    font-size: var(--font-size-11);
+    height: 22px;
+    background: transparent;
+}
 .sfrpg.sheet.actor .inventory-list .item .item-name .item-action .attack, .sfrpg.sheet.actor .crew-list .item .item-name .item-action .attack, .sfrpg.sheet.actor .vehicle-system-list .item .item-name .item-action .attack, .sfrpg.sheet.actor .inventory-list .crew .item-name .item-action .attack, .sfrpg.sheet.actor .crew-list .crew .item-name .item-action .attack, .sfrpg.sheet.actor .vehicle-system-list .crew .item-name .item-action .attack, .sfrpg.sheet.actor .inventory-list .item .crew-name .item-action .attack, .sfrpg.sheet.actor .crew-list .item .crew-name .item-action .attack, .sfrpg.sheet.actor .vehicle-system-list .item .crew-name .item-action .attack, .sfrpg.sheet.actor .inventory-list .crew .crew-name .item-action .attack, .sfrpg.sheet.actor .crew-list .crew .crew-name .item-action .attack, .sfrpg.sheet.actor .vehicle-system-list .crew .crew-name .item-action .attack {
     width: auto;
     background: #235683;
@@ -91,6 +117,7 @@
 	margin: 0.5em 0 0.5em 0;
 }
 
+
 .sfrpg.sheet.actor ul.attributes li.attribute .attribute-value {
     height: 28px;
     line-height: 28px;
@@ -103,11 +130,24 @@
     border-top-right-radius: 5px;
     border-bottom: none;
 }
-
-h1, h2, h3, h4 {
+.bubble-header h1, h2, h3, h4 {
+	font-family: "serpentine", sans-serif;
+	color: var(--color-primary);
+}
+.sfrpg.sheet.actor h1, .sfrpg.sheet.actor h2, .sfrpg.sheet.actor h3, .sfrpg.sheet.actor h4 {
 	font-family: "serpentine", sans-serif;
 	color: var(--color-primary-verydark);
 }
+
+.sfrpg.sheet.item .sheet-header   h1, 
+.sfrpg.sheet.item .sheet-header   h2, 
+.sfrpg.sheet.item .sheet-header   h3, 
+.sfrpg.sheet.item .sheet-header   h4 {
+	font-family: "serpentine", sans-serif;
+	color: var(--color-primary-verydark);
+}
+
+
 
 .sfrpg .window-content {
     font-size: var(--font-size-13);
@@ -225,4 +265,149 @@ h1, h2, h3, h4 {
 
 .sfrpg.sheet.actor .tab[data-alternity-spell-panel] .item-controls {
 	flex: 0 0 44px;
+}
+
+/* Hide save misc footers that are now derived from Alternity skills. */
+.sfrpg.sheet.actor.character .attribute.save[data-save="fort"] .attribute-footer,
+.sfrpg.sheet.actor.character .attribute.save[data-save="reflex"] .attribute-footer,
+.sfrpg.sheet.actor.character .attribute.save[data-save="will"] .attribute-footer {
+    display: none;
+}
+
+.sfrpg.sheet.actor.starship .sheet-header .header-background .charlevel {
+display: none;
+}
+
+.sfrpg.sheet.actor.starship .sheet-body .attributes .attribute .attribute-value label.notInstalled {
+    flex: 6;
+    font-size: var(--font-size-10);
+    text-align: left;
+}
+
+
+
+.sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-species-random-header {
+    margin: 6px 0 4px;
+}
+
+.sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-species-random-header > label {
+    display: block;
+    width: 100%;
+}
+
+.sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-species-random-header .notes {
+    margin: 2px 0 0;
+}
+
+.sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-species-ability-range-list {
+    display: grid;
+    gap: 6px;
+}
+
+.sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-species-ability-range-row {
+    display: grid;
+    grid-template-columns: 40px 28px 72px 28px 72px 54px minmax(120px, 1fr);
+    gap: 6px;
+    align-items: center;
+    margin: 0;
+}
+
+.sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-species-ability-range-label {
+    margin: 0;
+}
+
+.sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-species-inline-label {
+    margin: 0;
+    text-align: right;
+    font-size: var(--font-size-12);
+}
+
+.sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-ability-range-input {
+    width: 100%;
+    margin: 0;
+}
+
+.sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-ability-range-min,
+.sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-ability-range-max {
+    text-align: center;
+}
+
+.sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-ability-range-formula {
+    text-align: left;
+}
+
+@media (max-width: 840px) {
+    .sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-species-ability-range-row {
+        grid-template-columns: 40px 28px 1fr 28px 1fr;
+    }
+
+    .sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-species-inline-label-formula,
+    .sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-ability-range-formula {
+        grid-column: 1 / -1;
+    }
+
+    .sfrpg.sheet.item [data-sf-alternity-species-adjustment] .sfa-species-inline-label-formula {
+        text-align: left;
+        margin-top: 2px;
+    }
+}
+.sfrpg.chat-card .card-content table.StarshipData,
+body.game .app .editor-content table.StarshipData {
+  font-family: serpentine, Tahoma, Geneva, sans-serif;
+  border: 2px solid #1ca499;
+  background-color: #EEEEEE;
+  width: min(100%, 300px);
+  text-align: center;
+  border-collapse: collapse;
+
+}
+.sfrpg.chat-card .card-content table.StarshipData td, .sfrpg.chat-card .card-content table.StarshipData th,
+body.game .app .editor-content table.StarshipData td, body.game .app .editor-content table.StarshipData th {
+  border: 1px solid #AAAAAA;
+  padding: 3px 2px;
+
+}
+
+body.game .app .editor-content table.StarshipData p {
+  font-size: 12px;
+  margin: 0;
+}
+
+body.game .app .editor-content table.StarshipData tbody td {
+  font-size: 12px;
+  margin: 1px;
+}
+body.game .app .editor-content table.StarshipData tr:nth-child(even) {
+  background: #CFF5EB;
+}
+body.game .app .editor-content table.StarshipData thead {
+  background: #1CA499;
+  background: -moz-linear-gradient(top, #55bbb2 0%, #32ada3 66%, #1CA499 100%);
+  background: -webkit-linear-gradient(top, #55bbb2 0%, #32ada3 66%, #1CA499 100%);
+  background: linear-gradient(to bottom, #55bbb2 0%, #32ada3 66%, #1CA499 100%);
+  border-bottom: 2px solid #444444;
+}
+body.game .app .editor-content table.StarshipData thead th {
+  font-size: 15px;
+  font-weight: bold;
+  color: #FFFFFF;
+  border-left: 2px solid #D0E4F5;
+    text-align: center;
+}
+body.game .app .editor-content table.StarshipData thead th:first-child {
+  border-left: none;
+}
+
+body.game .app .editor-content table.StarshipData tfoot td {
+  font-size: 14px;
+}
+body.game .app .editor-content table.StarshipData tfoot .links {
+  text-align: right;
+}
+body.game .app .editor-content table.StarshipData tfoot .links a{
+  display: inline-block;
+  background: #1C6EA4;
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 5px;
 }

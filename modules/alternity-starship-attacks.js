@@ -20,31 +20,11 @@ export function registerAlternityStarshipAttackPatch() {
       return originalRollStarshipAttack.call(this, options);
     }
 
-    const attackItem = this;
-    const shipActor = this.actor;
-    const originalSetupRollContexts = shipActor?.setupRollContexts;
-    if (typeof originalSetupRollContexts !== "function") {
+    if (!hasRequiredStarshipAttackRuntime()) {
       return originalRollStarshipAttack.call(this, options);
     }
 
-    shipActor.setupRollContexts = function alternitySetupRollContexts(rollContext, selectors) {
-      const result = originalSetupRollContexts.call(this, rollContext, selectors);
-      patchStarshipAttackAdditionalContext({ item: attackItem, rollContext });
-      
-      console.log("Alternity-SFRPG | Patched shipActor.setupRollContexts for Alternity starship attack roll context.");
-      console.log("result", result);
-      console.log("rollContext", rollContext);
-      console.log("selectors", selectors);
-      console.log("this", this);
-      return result;
-    };
-    console.log("Alternity-SFRPG | Patched Item._rollStarshipAttack for Alternity starship attack roll context.");
-    console.log("this, options", this, options);
-    try {
-      return await originalRollStarshipAttack.call(this, options);
-    } finally {
-      shipActor.setupRollContexts = originalSetupRollContexts;
-    }
+    return rollAlternityStarshipAttack.call(this, options);
   };
 
   itemPrototype._rollStarshipAttack[MODULE_ID] = {
@@ -52,34 +32,155 @@ export function registerAlternityStarshipAttackPatch() {
   };
 }
 
-function patchStarshipAttackAdditionalContext({ item, rollContext }) {
-  if (!item || !rollContext || rollContext.__sfAlternityStarshipAttackPatched === true) return;
-
-  const originalAddContext = rollContext.addContext;
-  rollContext.addContext = function alternityAddContext(name, entity, data = null) {
-    if (name === "additional") {
-      data = buildAlternityAdditionalContextData({ item, rollContext, data });
-    }
-
-    return originalAddContext.call(this, name, entity, data);
-  };
-
-  rollContext.__sfAlternityStarshipAttackPatched = true;
+function hasRequiredStarshipAttackRuntime() {
+  return typeof game.sfrpg?.dice?.d20Roll === "function"
+    && typeof game.sfrpg?.rolls?.RollContext === "function"
+    && game.sfrpg?.config?.actionTargetsStarship;
 }
 
-function buildAlternityAdditionalContextData({ item, rollContext, data }) {
-  const contextData = foundry.utils.deepClone(data ?? {});
-  contextData.modifiers = contextData.modifiers ?? {};
-  contextData.modifiers.rolledMods = createAlternityStarshipAttackModifiers({ item, rollContext });
+async function rollAlternityStarshipAttack(options = {}) {
+  const parts = buildAlternityStarshipAttackParts(this);
+  const actorContextKey = getAlternityStarshipAttackRoleKey(this);
+  const title = game.settings.get("sfrpg", "useCustomChatCards")
+    ? game.i18n.format("SFRPG.Rolls.AttackRoll")
+    : game.i18n.format("SFRPG.Rolls.AttackRollFull", { name: this.name });
 
-  return contextData;
+  if (this.hasCapacity() && this.getCurrentCapacity() <= 0 && this.getMaxCapacity() > 0) {
+    ui.notifications.warn(game.i18n.format("SFRPG.StarshipSheet.Weapons.NoCapacity"));
+    return false;
+  }
+
+  const RollContext = game.sfrpg.rolls.RollContext;
+  const rollContext = new RollContext();
+  rollContext.addContext("ship", this.actor);
+  rollContext.addContext("item", this, this.system);
+  rollContext.addContext("weapon", this, this.system);
+  rollContext.setMainContext("");
+
+  this.actor?.setupRollContexts(rollContext, ["gunner", "scienceOfficer", "chiefMate"]);
+  ensureAlternityStarshipCrewContext(rollContext, this.actor, actorContextKey);
+
+  const attackBonus = Number.parseInt(this.system.attackBonus, 10);
+  if (attackBonus) parts.push("@item.attackBonus");
+
+  rollContext.addContext(
+    "additional",
+    { name: "additional" },
+    { modifiers: { bonus: "n/a", rolledMods: createAlternityStarshipAttackModifiers({ item: this, rollContext }) } }
+  );
+  parts.push("@additional.modifiers.bonus");
+
+  const rollOptions = {};
+  if (this.system.actionTarget) {
+    rollOptions.actionTarget = this.system.actionTarget;
+    rollOptions.actionTargetSource = game.sfrpg.config.actionTargetsStarship;
+  }
+
+  const quadrant = this.system.mount.arc.charAt(0).toUpperCase() + this.system.mount.arc.slice(1);
+  if (this.actor.system?.attributes?.systems?.[`weaponsArray${quadrant}`]?.mod < 0) {
+    parts.push(`@ship.attributes.systems.weaponsArray${quadrant}.mod`);
+  }
+  if (this.actor.system?.attributes?.systems?.powerCore?.modOther < 0) {
+    parts.push("@ship.attributes.systems.powerCore.modOther");
+  }
+
+  return game.sfrpg.dice.d20Roll({
+    event: options.event,
+    parts,
+    rollContext,
+    title,
+    speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+    critical: 20,
+    chatMessage: options.chatMessage,
+    dialogOptions: {
+      skipUI: options.skipUI,
+      left: options.event ? options.event.clientX - 80 : null,
+      top: options.event ? options.event.clientY - 80 : null
+    },
+    rollOptions,
+    actorContextKey,
+    onClose: (roll, formula, finalFormula) => {
+      if (!roll) return;
+
+      const rollDamageWithAttack = game.settings.get("sfrpg", "rollDamageWithAttack");
+      if (rollDamageWithAttack && !options.disableDamageAfterAttack) {
+        this.rollDamage({});
+      }
+
+      if (this.hasCapacity() && !options.disableDeductAmmo && this.getMaxCapacity() > 0) {
+        this.consumeCapacity(1);
+      }
+
+      Hooks.callAll("attackRolled", {
+        actor: this.actor,
+        item: this,
+        roll,
+        formula: { base: formula, final: finalFormula },
+        rollMetadata: options?.rollMetadata
+      });
+    }
+  });
+}
+
+function getAlternityStarshipAttackRoleKey(item) {
+  if (item.system.weaponType === "ecm") return "scienceOfficer";
+  if (item.system.weaponType === "melee") return "chiefMate";
+  return "gunner";
+}
+
+function ensureAlternityStarshipCrewContext(rollContext, shipActor, roleKey) {
+  if (!rollContext || !shipActor || !roleKey) return;
+
+  if (shipActor.system?.crew?.useNPCCrew) {
+    const crewData = shipActor.system?.crew?.npcData?.[roleKey];
+    if (!crewData) return;
+
+    rollContext.addContext(
+      roleKey,
+      { name: game.i18n.localize(game.sfrpg?.config?.starshipRoles?.[roleKey] ?? roleKey) },
+      crewData
+    );
+    return;
+  }
+
+  const crewActor = shipActor?.crew?.[roleKey]?.actors?.[0];
+  if (!crewActor) return;
+
+  rollContext.addContext(roleKey, crewActor, crewActor.system ?? crewActor.data);
+}
+
+function buildAlternityStarshipAttackParts(item) {
+  if (item.system.weaponType === "ecm") {
+    if (item.actor.system.crew.useNPCCrew) {
+      return ["@scienceOfficer.skills.com.mod"];
+    }
+    return isNpc2CrewActorForRole(item.actor, "scienceOfficer")
+      ? ["@scienceOfficer.skills.com.ranks"]
+      : ["@scienceOfficer.skills.com.ranks", "@scienceOfficer.abilities.int.mod"];
+  }
+
+  if (item.system.weaponType === "melee") {
+    if (item.actor.system.crew.useNPCCrew) {
+      return ["@chiefMate.skills.eng.mod"];
+    }
+    return isNpc2CrewActorForRole(item.actor, "chiefMate")
+      ? ["@chiefMate.skills.eng.ranks"]
+      : ["@chiefMate.skills.eng.ranks", "@chiefMate.abilities.int.mod"];
+  }
+
+  if (item.actor.system.crew.useNPCCrew) {
+    return ["@gunner.skills.gun.mod"];
+  }
+
+  return isNpc2CrewActorForRole(item.actor, "gunner")
+    ? ["max(@gunner.attributes.baseAttackBonus.value, @gunner.skills.pil.ranks)"]
+    : ["max(@gunner.attributes.baseAttackBonus.value, @gunner.skills.pil.ranks)", "@gunner.abilities.dex.mod"];
 }
 
 function createAlternityStarshipAttackModifiers({ item, rollContext }) {
   return [
     ...ALTERNITY_STARSHIP_ATTACK_MODIFIER_DEFS.map((definition) => createRolledModifier(definition)),
-    ...createAlternityComputerControlModifiers({ item, rollContext }),
-    ...createNpc2CrewCorrectionModifiers({ item, rollContext })
+    ...createAlternityComputerControlModifiers({ item, rollContext })
   ];
 }
 
@@ -104,29 +205,6 @@ function createAlternityComputerControlModifiers({ item, rollContext }) {
   return [];
 }
 
-function createNpc2CrewCorrectionModifiers({ item, rollContext }) {
-  const shipActor = item?.actor;
-  if (!shipActor || shipActor.system?.crew?.useNPCCrew === true) return [];
-
-  const isEcmWeapon = item.system?.weaponType === "ecm";
-  const crewKey = isEcmWeapon ? "scienceOfficer" : "gunner";
-  const abilityKey = isEcmWeapon ? "int" : "dex";
-  const crewContext = rollContext.allContexts?.[crewKey];
-  if (!isNpc2CrewContext(crewContext)) return [];
-
-  const modifierLabel = game.i18n.localize("SFA.Rolls.Starship.NPC2CrewAbilityCorrection");
-  const modifierId = `sfAlternity${crewKey[0].toUpperCase()}${crewKey.slice(1)}AbilityCorrection`;
-
-  return [{
-    bonus: {
-      _id: modifierId,
-      name: modifierLabel,
-      modifier: `-@${crewKey}.abilities.${abilityKey}.mod`,
-      enabled: true
-    }
-  }];
-}
-
 function isNpc2CrewContext(crewContext) {
   const crewActor = crewContext?.entity;
   if (crewActor?.type === "npc2") return true;
@@ -138,4 +216,10 @@ function isNpc2CrewContext(crewContext) {
   }
 
   return false;
+}
+
+function isNpc2CrewActorForRole(shipActor, roleKey) {
+  const actors = shipActor?.crew?.[roleKey]?.actors;
+  if (!Array.isArray(actors) || actors.length === 0) return false;
+  return actors.some((actor) => actor?.type === "npc2");
 }

@@ -18,7 +18,8 @@ export const SETTING_KEYS = {
   shortRestResolveFx: "shortRestResolveFx",
   shortRestResolvePsionics: "shortRestResolvePsionics",
   shortRestFxRecoveryFormula: "shortRestFxRecoveryFormula",
-  shortRestPsionicRecoveryFormula: "shortRestPsionicRecoveryFormula"
+  shortRestPsionicRecoveryFormula: "shortRestPsionicRecoveryFormula",
+  starshipDamageThreshold: "starshipDamageThreshold"
 
 };
 
@@ -53,38 +54,38 @@ const DEFAULT_NEW_SKILL_TEMPLATE = {
 };
 
 export const DEFAULT_SKILL_RANK_COSTS_BYSKILL = {
-"acr" :{"basecost":4,"rankcost":3},
-"ath" :{"basecost":1,"rankcost":2},
-"blu" :{"basecost":2,"rankcost":3},
-"com" :{"basecost":3,"rankcost":4},
-"cul" :{"basecost":3,"rankcost":2},
-"dip" :{"basecost":1,"rankcost":3},
-"dis" :{"basecost":2,"rankcost":3},
-"eng" :{"basecost":3,"rankcost":3},
-"int" :{"basecost":0,"rankcost":3},
-"lsc" :{"basecost":4,"rankcost":3},
-"med" :{"basecost":4,"rankcost":3},
-"mys" :{"basecost":3,"rankcost":2},
-"per" :{"basecost":1,"rankcost":2},
-"phs" :{"basecost":2,"rankcost":2},
-"pil" :{"basecost":1,"rankcost":4},
-"sen" :{"basecost":0,"rankcost":3},
-"sle" :{"basecost":0,"rankcost":4},
-"ste" :{"basecost":3,"rankcost":4},
-"sur" :{"basecost":2,"rankcost":3},
-"pro" :{"basecost":1,"rankcost":3},
-"pro960" :{"basecost":3,"rankcost":3},
-"pro970" :{"basecost":2,"rankcost":3},
-"pro971" :{"basecost":2,"rankcost":4},
-"pro972" :{"basecost":2,"rankcost":4},
-"pro973" :{"basecost":2,"rankcost":4},
-"pro974" :{"basecost":2,"rankcost":4},
-"pro975" :{"basecost":2,"rankcost":4},
-"pro976" :{"basecost":1,"rankcost":2},
-"pro977" :{"basecost":0,"rankcost":5},
-"pro978" :{"basecost":0,"rankcost":5},
-"pro990" :{"basecost":0,"rankcost":4},
-"pro991" :{"basecost":2,"rankcost":3},
+  "acr": { "basecost": 4, "rankcost": 3 },
+  "ath": { "basecost": 1, "rankcost": 2 },
+  "blu": { "basecost": 2, "rankcost": 3 },
+  "com": { "basecost": 3, "rankcost": 4 },
+  "cul": { "basecost": 3, "rankcost": 2 },
+  "dip": { "basecost": 1, "rankcost": 3 },
+  "dis": { "basecost": 2, "rankcost": 3 },
+  "eng": { "basecost": 3, "rankcost": 3 },
+  "int": { "basecost": 0, "rankcost": 3 },
+  "lsc": { "basecost": 4, "rankcost": 3 },
+  "med": { "basecost": 4, "rankcost": 3 },
+  "mys": { "basecost": 3, "rankcost": 2 },
+  "per": { "basecost": 1, "rankcost": 2 },
+  "phs": { "basecost": 2, "rankcost": 2 },
+  "pil": { "basecost": 1, "rankcost": 4 },
+  "sen": { "basecost": 0, "rankcost": 3 },
+  "sle": { "basecost": 0, "rankcost": 4 },
+  "ste": { "basecost": 3, "rankcost": 4 },
+  "sur": { "basecost": 2, "rankcost": 3 },
+  "pro": { "basecost": 1, "rankcost": 3 },
+  "pro960": { "basecost": 3, "rankcost": 3 },
+  "pro970": { "basecost": 2, "rankcost": 3 },
+  "pro971": { "basecost": 2, "rankcost": 4 },
+  "pro972": { "basecost": 2, "rankcost": 4 },
+  "pro973": { "basecost": 2, "rankcost": 4 },
+  "pro974": { "basecost": 2, "rankcost": 4 },
+  "pro975": { "basecost": 2, "rankcost": 4 },
+  "pro976": { "basecost": 1, "rankcost": 2 },
+  "pro977": { "basecost": 0, "rankcost": 5 },
+  "pro978": { "basecost": 0, "rankcost": 5 },
+  "pro990": { "basecost": 0, "rankcost": 4 },
+  "pro991": { "basecost": 2, "rankcost": 3 },
 
 
 
@@ -131,38 +132,38 @@ Template
  */
 
 export const NEW_ALTERNITY_globalAttackRollModifiers = [
-       {
-        "bonus": {
-            "_id": "bobs-id-random01",
-            "name": "2 Actions I",
-            "modifier": "2-2d4",
-            "type": "untyped",
-            "enabled": false,
-            "modifierType": "formula",
-            "subtab": "temporary",
-            "max": -6,
-            "notes": ""
-        }
-    },
-   {
-        "bonus": {
-            "_id": "bobs-id-random02",
-            "name": "2 Actions II",
-            "modifier": "4-4d4",
-            "type": "untyped",
-            "enabled": false,
-            "modifierType": "formula",
-            "subtab": "temporary",
-            "max": -12,
-            "notes": ""
-        }
+  {
+    "bonus": {
+      "_id": "bobs-id-random01",
+      "name": "2 Actions I",
+      "modifier": "2-2d4",
+      "type": "untyped",
+      "enabled": false,
+      "modifierType": "formula",
+      "subtab": "temporary",
+      "max": -6,
+      "notes": ""
     }
+  },
+  {
+    "bonus": {
+      "_id": "bobs-id-random02",
+      "name": "2 Actions II",
+      "modifier": "4-4d4",
+      "type": "untyped",
+      "enabled": false,
+      "modifierType": "formula",
+      "subtab": "temporary",
+      "max": -12,
+      "notes": ""
+    }
+  }
 ]
 
 
 
 export const NEW_ALTERNITY_SKILLS = {
-    pro960: {
+  pro960: {
     ...DEFAULT_NEW_SKILL_TEMPLATE,
     ability: "int",
     subname: "Tactics",
@@ -247,145 +248,121 @@ export const ALTERNITY_WEAPON_SKILL_VALUE_AFFECTED = {
   pro977: "special",
   pro978: "solarian"
 };
-
+// these were modified to +5 based on increased skill attibutes
 export const ALTERNITY_STARSHIP_SIZE_MOD = {
-  tiny: 5,
-  small: 3,
+  tiny: +4,
+  small: +2,
   medium: 0,
-  large: -3,
-  huge: -5,
-  gargantuan: -7,
-  colossal: -9,
-  supercolossal: -11
+  large: -2,
+  huge: -4,
+  gargantuan: -5,
+  colossal: -7,
+  supercolossal: -9
 };
 
 export const ALTERNITY_STARSHIP_ATTACK_MODIFIER_DEFS = [
-   {
+  {
     id: "LeadershipBonus",
     nameKey: "Captain Leadership Bonus",
-    modifier: "+1d4-1",
-    enabled: false
-  },
-   {
-    id: "WeaponsBonus",
-    nameKey: "Sensors Weapons Bonus",
-    modifier: "+1d4-1",
-    enabled: false
-  },
-   {
-    id: "ComputerBonusOrd",
-    nameKey: "Computer Bonus (Ordinary)",
-    modifier: "+1d4-1",
-    enabled: false
-  },
-   {
-    id: "ComputerBonusGood",
-    nameKey: "Computer Bonus (Good)",
-    modifier: "+2d4-2",
-    enabled: false
-  },
-     {
-    id: "ComputerBonusAma",
-    nameKey: "Computer Bonus (Amazing)",
-    modifier: "+3d4-3",
+    modifier: "1d4-1",
     enabled: false
   },
   {
-    id: "RangeShort",
-    nameKey: "Range: Short",
+    id: "RangeMedium",
+    nameKey: "Range: Medium",
     modifier: "1-1d4",
     enabled: false
   },
-    {
-    id: "RangeMedium",
-    nameKey: "Range: Medium",
-    modifier: "2-2d4",
+  {
+    id: "RangeLong",
+    nameKey: "Range: Weapons Long",
+    modifier: "0-1d6",
     enabled: false
   },
     {
     id: "RangeLong",
-    nameKey: "Range: Long",
-    modifier: "3-3d4",
+    nameKey: "Range: Sensors Long",
+    modifier: "0-1d8",
     enabled: false
   },
   {
     id: "GenrealBonusp03",
-    nameKey: "+3 Steps General Bonus",
-    modifier: "3d4-3",
+    nameKey: "General Bonus +3 Steps",
+    modifier: "1d8",
     enabled: false
   },
-   {
+  {
     id: "GenrealBonusp02",
-    nameKey: "+2 Steps General Bonus",
-    modifier: "2d4-2",
+    nameKey: "General Bonus +2 Steps",
+    modifier: "1d6",
     enabled: false
   },
   {
     id: "GenrealBonusp01",
-    nameKey: "+1 Steps General Bonus",
+    nameKey: "General Bonus +1 Steps",
     modifier: "1d4-1",
     enabled: false
   },
   {
     id: "GenrealBonusm01",
-    nameKey: "-1 Steps General Bonus",
-    modifier: "1-1d4",
+    nameKey: "General Bonus -1 Steps",
+    modifier: "-1d4+1",
     enabled: false
   },
-    {
+  {
     id: "GenrealBonusm02",
-    nameKey: "-2 Steps General Bonus",
-    modifier: "2-2d4",
+    nameKey: "General Bonus -2 Steps ",
+    modifier: "-1d6",
     enabled: false
   },
-    {
+  {
     id: "GenrealBonusm03",
-    nameKey: "-3 Steps General Bonus",
-    modifier: "3-3d4",
+    nameKey: "General Bonus -3 Steps",
+    modifier: "-1d8",
     enabled: false
   },
 ];
 
 
-export const ALTERNITY_CHARACTER_EXP_LEVELS = 
-[
-0,6, 13, 21, 30, 40, 51, 63, 76, 90, 105, 121, 138, 156, 175, 195, 216, 238, 261, 285, 310, 336, 363, 391, 420, 450, 481, 513, 546, 580, 615, 651, 688, 726, 765, 805, 846, 888, 931, 975, 1020, 1066, 1113, 1161, 1210, 1260, 1311, 1363, 1416, 1470, 1525, 1581, 1638, 
-    
-]
+export const ALTERNITY_CHARACTER_EXP_LEVELS =
+  [
+    0, 6, 13, 21, 30, 40, 51, 63, 76, 90, 105, 121, 138, 156, 175, 195, 216, 238, 261, 285, 310, 336, 363, 391, 420, 450, 481, 513, 546, 580, 615, 651, 688, 726, 765, 805, 846, 888, 931, 975, 1020, 1066, 1113, 1161, 1210, 1260, 1311, 1363, 1416, 1470, 1525, 1581, 1638,
+
+  ]
 export const ALTERNITY_STARSHIP_SYSTEM_STATUS = {
-    "nominal": "Nominal",
-    "glitching": "Glitching",
-    "malfunctioning": "Malfunctioning",
-    "destroyed": "Destroyed"
+  "nominal": "Nominal",
+  "glitching": "Glitching",
+  "malfunctioning": "Malfunctioning",
+  "destroyed": "Destroyed"
 };
 export const ALTERNITY_STARSHIP_WEAPON_CLASS = {
 
   "light": "Light",
-    "heavy": "Heavy",
-    "capital": "Capital",
-    "spinal": "Spinal"
+  "heavy": "Heavy",
+  "capital": "Capital",
+  "spinal": "Spinal"
 }
 export const ALTERNITY_STARSHIP_MANEUVERABILITY_MAP = {
-    "clumsy": {
-        "pilotingBonus": 0,
-        "turn": 1
-    },
-    "poor": {
-        "pilotingBonus": 0,
-        "turn": 1
-    },
-    "average": {
-        "pilotingBonus": 0,
-        "turn": 2
-    },
-    "good": {
-        "pilotingBonus": 0,
-        "turn": 3
-    },
-    "perfect": {
-        "pilotingBonus": 0,
-        "turn": 4
-    }
+  "clumsy": {
+    "pilotingBonus": 0,
+    "turn": 1
+  },
+  "poor": {
+    "pilotingBonus": 0,
+    "turn": 1
+  },
+  "average": {
+    "pilotingBonus": 0,
+    "turn": 2
+  },
+  "good": {
+    "pilotingBonus": 0,
+    "turn": 3
+  },
+  "perfect": {
+    "pilotingBonus": 0,
+    "turn": 4
+  }
 };
 
 const DEFAULT_BREAKDOWN = {
@@ -442,7 +419,7 @@ export function createDefaultActorFlags() {
 
 export function createDefaultSpellPoolRecord(poolType) {
   const defaults = createDefaultSpellPools();
-  return foundry.utils.deepClone(defaults[poolType] ?? {power: createDefaultEnergyPool()});
+  return foundry.utils.deepClone(defaults[poolType] ?? { power: createDefaultEnergyPool() });
 }
 
 export function createDefaultSpellPoolData(poolType) {

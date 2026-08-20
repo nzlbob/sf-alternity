@@ -35,6 +35,7 @@ import { applyAlternityActorSheetOverlay, applyAlternityStarshipSheetOverlay } f
 import { registerAlternitySpellcasting } from "./alternity-spellcasting.js";
 import { applyAlternitySpellbookTabs } from "./alternity-spellbook-tabs.js";
 import { registerAlternityStarshipAttackPatch } from "./alternity-starship-attacks.js";
+import calculateStarshipCritThreshold, { alternityCalculateStarshipCritThreshold } from "./rules/calculate-starship-ct.js";
 
 
 console.log("Alternity-SFRPG | Initializing module…");
@@ -99,6 +100,19 @@ Hooks.once("init", () => {
     }
   });
 
+    game.settings.register(MODULE_ID, SETTING_KEYS.starshipDamageThreshold, {
+    name: "SFA.Settings.StarshipDamageThreshold.Name",
+    hint: "SFA.Settings.StarshipDamageThreshold.Hint",
+    scope: "world",
+    config: true,
+    type: Number,
+    default: 10,
+    range: {
+      min: 0,
+      max: 100,
+      step: 1
+    }
+  });
 
 
   game.settings.register(MODULE_ID, SETTING_KEYS.hideCoreCompendiums, {
@@ -142,6 +156,7 @@ Hooks.once("init", () => {
 
 Hooks.once("setup", () => {
   console.log("Alternity-SFRPG | setup");
+  installStarshipCritThresholdPatch({ logMissing: false });
   const originalrace = game.packs.get("sfrpg.races");
   const replacementrace = game.packs.get("sf-alternity.races");
   const originalequipment = game.packs.get("sfrpg.equipment");
@@ -179,6 +194,12 @@ Hooks.once("ready", () => {
 //  CONFIG.SFRPG.globalAttackRollModifiers = foundry.utils.deepClone(CONFIG.SFRPG.globalAttackRollModifiers ?? []);
 
   CONFIG.SFRPG.globalAttackRollModifiers = foundry.utils.deepClone(NEW_ALTERNITY_globalAttackRollModifiers ?? []);
+
+
+  installStarshipCritThresholdPatch();
+
+
+
 
   void disableSfrpgAutoAddUnarmedStrike();
   installSkillRankLimitOffsetPatch();
@@ -271,7 +292,7 @@ Hooks.on("preCreateItem", (item) => {
   const updates = {};
   for (const [path, defaultValue] of Object.entries(CLASS_PROGRESSION_DEFAULTS)) {
     const currentValue = foundry.utils.getProperty(item, path);
-    if (currentValue === undefined || currentValue === null || currentValue === "") {
+    if (!(currentValue === "full") || !(currentValue === "fast") || currentValue === "") {
       updates[path] = defaultValue;
     }
   }
@@ -289,6 +310,24 @@ Hooks.on("updateItem", (item, update, options) => {
   if (item.actor?.type === "character") {
     void refreshActorSpellPowerPools(item.actor);
   }
+
+  if (item?.type === "class") {
+    const updates = {};
+    for (const [path, defaultValue] of Object.entries(CLASS_PROGRESSION_DEFAULTS)) {
+      const currentValue = foundry.utils.getProperty(item, path);
+    if (!(currentValue === "full") || !(currentValue === "fast") || currentValue === "") {
+        updates[path] = defaultValue;
+      }
+    }
+
+    if (!foundry.utils.isEmpty(updates)) {
+      item.updateSource(updates);
+    }
+  }
+  
+
+
+
 });
 
 Hooks.on("deleteItem", (item, options) => {
@@ -512,6 +551,31 @@ async function syncAlternityDefensesFromSkills(actor, options = {}) {
 function getSkillRankLimitOffset() {
   const rawOffset = Number(game.settings.get(MODULE_ID, SETTING_KEYS.skillRankLimitOffset) ?? 0);
   return Number.isFinite(rawOffset) ? Math.trunc(rawOffset) : 0;
+}
+
+function installStarshipCritThresholdPatch({ logMissing = true } = {}) {
+  const engine = game.sfrpg?.engine;
+  const closure = engine?.closures?.get?.("calculateStarshipCritThreshold");
+
+  if (!closure) {
+    if (engine?.closures?.add) {
+      calculateStarshipCritThreshold(engine);
+      console.log("Alternity-SFRPG | Registered calculateStarshipCritThreshold from module rules.");
+      return;
+    }
+
+    if (logMissing) {
+      console.warn("Alternity-SFRPG | Unable to locate the SFRPG rules engine for starship critical threshold patching.");
+    }
+    return;
+  }
+
+  if (closure.fn === alternityCalculateStarshipCritThreshold || closure.__sfAlternityStarshipCtPatched === true) return;
+
+  closure.__sfAlternityStarshipCtOriginal = closure.fn;
+  closure.fn = alternityCalculateStarshipCritThreshold;
+  closure.__sfAlternityStarshipCtPatched = true;
+  console.log("Alternity-SFRPG | Patched calculateStarshipCritThreshold with module rules.");
 }
 
 function installSkillRankLimitOffsetPatch({ logMissing = true } = {}) {

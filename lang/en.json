@@ -65,6 +65,45 @@
             }
         },
         "StarshipSheet": {
+            "Crew": {
+                "ActionsPerRound": "Actions per round",
+                "ActorIDs": "Actor IDs",
+                "ActorIDsTooltip": "Actor IDs of the crew members in this role",
+                "AddSkill": "Add skill",
+                "AssignedCount": "({current} / {max})",
+                "Captain": "Captain",
+                "ChiefMates": "Defence",
+                "CrewLimitReached": "You have reached the maximum amount of crew allowed for the role of '{targetRole}'.",
+                "CrewSetting": "Crew setting",
+                "Engineers": "Engineers",
+                "Gunners": "Gunners",
+                "Header": "Starship Crew",
+                "IsNPCCrew": "Is NPC crew",
+                "MagicOfficers": "Magic Officers",
+                "NPCGunnerRanksMessage": "While ranks aren't relevant to an NPC's gunnery modifier, some statblocks may include the Gunner's level, which you can store here. You can otherwise safely leave this box blank.",
+                "NumberOfUses": "Number of Uses",
+                "Passengers": "Passengers",
+                "Pilot": "Pilot",
+                "RemoveCrewMember": "Remove Crew Member",
+                "RoleLimit": "Role Limit",
+                "RoleLimitTooltip": "Maximum number of crew members in this role.",
+                "ScienceOfficers": "Sensors",
+                "SkillModifier": "Modifier",
+                "SkillRanks": "Ranks",
+                "UnlimitedMax": "No limit"
+            },
+            "Role": {
+                "Captain": "Captain",
+                "ChiefMate": "Defence",
+                "Engineer": "Engineer",
+                "Gunner": "Gunner",
+                "MagicOfficer": "Magic Officer",
+                "MinorCrew": "Minor Crew",
+                "OpenCrew": "Open Crew",
+                "Passenger": "Passenger",
+                "Pilot": "Pilot",
+                "ScienceOfficer": "Sensors"
+            },
             "Features": {
                 "Prefixes": {
                     "StarshipDriftEngine": "FTL Engine"
@@ -114,6 +153,43 @@
                 "Good": "Good (Mvr 3)",
                 "Perfect": "Perfect (Mvr 4)",
                 "Poor": "Poor  (Mvr 1)"
+            },
+            "StarshipWeaponTypes": {
+                "Direct": "Direct-fire",
+                "ECM": "Sensors and ECM Module",
+                "Melee": "Defences",
+                "Tracking": "Launched Ordnance"
+            }
+        },
+        "Combat": {
+            "Starship": {
+                "Name": "Starship Combat",
+                "Phases": {
+                    "1": {
+                        "Description": "Anyone who wishes to change starship roles, may do so now.",
+                        "Name": "Changing Roles"
+                    },
+                    "2": {
+                        "Description": "Captains, Engineers, Magic Officers and Defence may choose to act during this phase.",
+                        "Name": "Sensors + Engineering"
+                    },
+                    "3": {
+                        "Description": "Pilots may now roll their piloting checks to determine this round's initiative.",
+                        "Name": "Piloting Check"
+                    },
+                    "4": {
+                        "Description": "Captains, Pilots, Sensors and Defence and may choose to act during this phase.",
+                        "Name": "Helm"
+                    },
+                    "5": {
+                        "Description": "Captains, Defence and Gunners may choose to act during this phase.",
+                        "Name": "Gunnery"
+                    },
+                    "6": {
+                        "Description": "Defence and Everyone now processes their received damages, critical thresholds, etc.",
+                        "Name": "Defence + Damage"
+                    }
+                }
             }
         }
     },
@@ -180,6 +256,10 @@
             "ShortRestPsionicRecoveryFormula": {
                 "Name": "Psionic Power Rest Recovery Formula",
                 "Hint": "Number or roll formula for psionic power restored by a 10-minute rest. Supports @ references from actor roll data."
+            },
+            "StarshipDamageThresholds": {
+                "Name": "Starship Damage Thresholds",
+                "Hint": "Modify what % of the starship's hull points must be lost before it takes critical damage. SFRPG default is 20%."
             }
         },
         "Rolls": {

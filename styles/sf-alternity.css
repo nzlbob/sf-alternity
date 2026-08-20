@@ -33,7 +33,13 @@
     content: url("../images/system/turnmarkers/game_paused_01.webp");
 }
 
-
+.chat-message .message-header .flavor-text, .chat-message .message-header .whisper-to {
+    flex: 0 0 100%;
+    font-size: var(--font-size-14);
+    line-height: normal;
+    justify-content: justify;
+    font-family: "serpentine", sans-serif;
+}
 
 #hotbar #action-bar .slot {
     position: relative;
@@ -367,19 +373,21 @@ body.game .app .editor-content table.StarshipData td, body.game .app .editor-con
   padding: 3px 2px;
 
 }
-
+.sfrpg.chat-card .card-content table.StarshipData p,
 body.game .app .editor-content table.StarshipData p {
   font-size: 12px;
   margin: 0;
 }
-
+.sfrpg.chat-card .card-content table.StarshipData tbody td, 
 body.game .app .editor-content table.StarshipData tbody td {
   font-size: 12px;
   margin: 1px;
 }
+.sfrpg.chat-card .card-content table.StarshipData tr:nth-child(even),
 body.game .app .editor-content table.StarshipData tr:nth-child(even) {
   background: #CFF5EB;
 }
+.sfrpg.chat-card .card-content table.StarshipData thead,
 body.game .app .editor-content table.StarshipData thead {
   background: #1CA499;
   background: -moz-linear-gradient(top, #55bbb2 0%, #32ada3 66%, #1CA499 100%);
@@ -387,6 +395,7 @@ body.game .app .editor-content table.StarshipData thead {
   background: linear-gradient(to bottom, #55bbb2 0%, #32ada3 66%, #1CA499 100%);
   border-bottom: 2px solid #444444;
 }
+.sfrpg.chat-card .card-content table.StarshipData thead th,
 body.game .app .editor-content table.StarshipData thead th {
   font-size: 15px;
   font-weight: bold;
@@ -394,16 +403,19 @@ body.game .app .editor-content table.StarshipData thead th {
   border-left: 2px solid #D0E4F5;
     text-align: center;
 }
+.sfrpg.chat-card .card-content table.StarshipData thead th:first-child,
 body.game .app .editor-content table.StarshipData thead th:first-child {
   border-left: none;
 }
-
+.sfrpg.chat-card .card-content table.StarshipData tfoot td,
 body.game .app .editor-content table.StarshipData tfoot td {
   font-size: 14px;
 }
+.sfrpg.chat-card .card-content table.StarshipData tfoot .links ,
 body.game .app .editor-content table.StarshipData tfoot .links {
   text-align: right;
 }
+.sfrpg.chat-card .card-content table.StarshipData tfoot .links a,
 body.game .app .editor-content table.StarshipData tfoot .links a{
   display: inline-block;
   background: #1C6EA4;

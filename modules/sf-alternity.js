@@ -34,8 +34,15 @@ import { applyAlternityRaceSheetAugment, registerAlternityItemSheets } from "./a
 import { applyAlternityActorSheetOverlay, applyAlternityStarshipSheetOverlay } from "./alternity-sheet-overlays.js";
 import { registerAlternitySpellcasting } from "./alternity-spellcasting.js";
 import { applyAlternitySpellbookTabs } from "./alternity-spellbook-tabs.js";
-import { registerAlternityStarshipAttackPatch } from "./alternity-starship-attacks.js";
-import calculateStarshipCritThreshold, { alternityCalculateStarshipCritThreshold } from "./rules/calculate-starship-ct.js";
+import {
+  registerAlternityItemAttackBonusStepPatch,
+  registerAlternityStarshipAttackPatch,
+  registerUseAlternityStarshipAction
+} from "./alternity-starship-attacks.js";
+import { registerAlternitySkillRollPatch } from "./alternity-skill-rolling.js";
+import calculateStarshipCritThreshold, { alternityCalculateStarshipCritThreshold } from "./rules/calculate-alt-starship-ct.js";
+import calculateStarshipTargetLock, { alternityCalculateStarshipTargetLock } from "./rules/calculate-alt-starship-targetlock.js";
+import calculateStarshipArmorClass, { alternityCalculateStarshipArmorClass } from "./rules/calculate-alt-starship-ac.js";
 
 
 console.log("Alternity-SFRPG | Initializing module…");
@@ -51,6 +58,9 @@ const CLASS_PROGRESSION_DEFAULTS = {
   "system.bab": "full"
 };
 
+const CORE_STARSHIP_ACTIONS_PACK = "sfrpg.starship-actions";
+const ALTERNITY_STARSHIP_ACTIONS_PACK = "sf-alternity.sfa_starship-actions";
+
 Hooks.once("init", () => {
   console.log("Alternity-SFRPG | init");
 
@@ -64,7 +74,10 @@ Hooks.once("init", () => {
     scope: "world",
     config: true,
     type: Boolean,
-    default: true
+    default: true,
+    onChange: () => {
+      void synchronizeStarshipActionsSource();
+    }
   });
 
   game.settings.register(MODULE_ID, SETTING_KEYS.autoAddUnarmedStrike, {
@@ -100,6 +113,34 @@ Hooks.once("init", () => {
     }
   });
 
+  game.settings.register(MODULE_ID, SETTING_KEYS.starshipArmorClassBase, {
+    name: "SFA.Settings.StarshipArmorClassBase.Name",
+    hint: "SFA.Settings.StarshipArmorClassBase.Hint",
+    scope: "world",
+    config: true,
+    type: Number,
+    default: 10,
+    range: {
+      min: 0,
+      max: 100,
+      step: 1
+    }
+  });
+
+  game.settings.register(MODULE_ID, SETTING_KEYS.starshipTargetLockBase, {
+    name: "SFA.Settings.StarshipTargetLockBase.Name",
+    hint: "SFA.Settings.StarshipTargetLockBase.Hint",
+    scope: "world",
+    config: true,
+    type: Number,
+    default: 10,
+    range: {
+      min: 0,
+      max: 100,
+      step: 1
+    }
+  });
+
     game.settings.register(MODULE_ID, SETTING_KEYS.starshipDamageThreshold, {
     name: "SFA.Settings.StarshipDamageThreshold.Name",
     hint: "SFA.Settings.StarshipDamageThreshold.Hint",
@@ -112,6 +153,14 @@ Hooks.once("init", () => {
       max: 100,
       step: 1
     }
+  });
+
+  game.settings.register(MODULE_ID, SETTING_KEYS.starshipActionsSourceBackup, {
+    name: "Alternity Starship Actions Source Backup",
+    scope: "world",
+    config: false,
+    type: String,
+    default: ""
   });
 
 
@@ -128,8 +177,18 @@ Hooks.once("init", () => {
   registerAlternitySkillPointSettings();
   registerAlternityActorSheets();
   registerAlternityItemSheets();
+  registerAlternitySkillRollPatch();
   registerAlternitySpellcasting();
+  registerAlternityItemAttackBonusStepPatch();
   registerAlternityStarshipAttackPatch();
+  registerUseAlternityStarshipAction();
+
+  installStarshipTargetLockPatch({ logMissing: false });
+  installStarshipArmorClassPatch({ logMissing: false });
+
+  installStarshipTargetLockPatch();
+  installStarshipArmorClassPatch();
+
 
   // Extend CONFIG with Alternity namespace
   CONFIG.SFRPG = CONFIG.SFRPG || {};
@@ -147,7 +206,8 @@ Hooks.once("init", () => {
 
   // Try to patch early in case core calculations run before ready.
   installSkillRankLimitOffsetPatch({ logMissing: false });
-
+    CONFIG.SFRPG.starshipSizeMod = foundry.utils.deepClone(ALTERNITY_STARSHIP_SIZE_MOD);
+  CONFIG.SFRPG.starshipManeuverabilityMap = foundry.utils.deepClone(ALTERNITY_STARSHIP_MANEUVERABILITY_MAP);
 
 
 
@@ -157,20 +217,18 @@ Hooks.once("init", () => {
 Hooks.once("setup", () => {
   console.log("Alternity-SFRPG | setup");
   installStarshipCritThresholdPatch({ logMissing: false });
+
+
   const originalrace = game.packs.get("sfrpg.races");
   const replacementrace = game.packs.get("sf-alternity.races");
   const originalequipment = game.packs.get("sfrpg.equipment");
   const replacementequipment = game.packs.get("sf-alternity.equipment");
-  const originalactions = game.packs.get("sfrpg.starship-actions");
-  const replacementactions = game.packs.get("sf-alternity.starship-actions");
-  console.log("Alternity-SFRPG | init - originalactions:", originalactions);
-  console.log("Alternity-SFRPG | init - replacementactions:", replacementactions);
   CONFIG.SFRPG = CONFIG.SFRPG || {};
-  CONFIG.SFRPG.starshipSizeMod = foundry.utils.deepClone(ALTERNITY_STARSHIP_SIZE_MOD);
+
   CONFIG.SFRPG.CHARACTER_EXP_LEVELS = foundry.utils.deepClone(ALTERNITY_CHARACTER_EXP_LEVELS);
   CONFIG.SFRPG.starshipSystemStatus = foundry.utils.deepClone(ALTERNITY_STARSHIP_SYSTEM_STATUS);
-  CONFIG.SFRPG.starshipManeuverabilityMap = foundry.utils.deepClone(ALTERNITY_STARSHIP_MANEUVERABILITY_MAP);
-  CONFIG.SFRPG.starshipManeuverabilityMap = foundry.utils.deepClone(ALTERNITY_STARSHIP_MANEUVERABILITY_MAP);
+
+ // CONFIG.SFRPG.starshipManeuverabilityMap = foundry.utils.deepClone(ALTERNITY_STARSHIP_MANEUVERABILITY_MAP);
  //CONFIG.SFRPG.starshipWeaponClass = foundry.utils.deepClone(ALTERNITY_STARSHIP_WEAPON_CLASS);
   if (originalrace && replacementrace) {
     game.packs.set("sfrpg.races", replacementrace);
@@ -178,12 +236,8 @@ Hooks.once("setup", () => {
   if (originalequipment && replacementequipment) {
     game.packs.set("sfrpg.equipment", replacementequipment);
   }
-  if (originalactions && replacementactions) {
-    //  game.packs.set("sfrpg.starship-actions", replacementactions);
-  }
-
 });
-Hooks.once("ready", () => {
+Hooks.once("ready", async () => {
   console.log("Alternity-SFRPG | ready");
 
   CONFIG.SFRPG = CONFIG.SFRPG || {};
@@ -197,6 +251,8 @@ Hooks.once("ready", () => {
 
 
   installStarshipCritThresholdPatch();
+
+  await synchronizeStarshipActionsSource();
 
 
 
@@ -364,6 +420,11 @@ Hooks.on("renderCompendiumDirectory", (_app, html) => {
   hideCoreSfrpgCompendiumSidebarEntries(html);
 });
 
+Hooks.on("updateSetting", (setting) => {
+  if (setting?.key !== "sfrpg.starshipActionsSource") return;
+  void refreshStarshipActionsCache();
+});
+
 //Hooks.on("renderItemSheet", (app, html) => {
 //  if (!isAlternityEnabled()) return;
 //  applyAlternityRaceSheetAugment(app, html);
@@ -388,6 +449,22 @@ Hooks.on("onActorRest", (restResults) => {
     void applyAlternityLongRestRecovery(restResults.actor);
   }
 });
+
+
+Hooks.on("onBeforeUpdateCombat", (combatEventData) => {
+  const combat = combatEventData?.combat;
+  const ordnanceUpdates = combat?.combatants.contents
+    .filter((combatant) => combatant.name?.includes("Ord:") && combatant.initiative !== 100)
+    .map((combatant) => ({
+      _id: combatant.id,
+      initiative: 100
+    })) ?? [];
+
+  if (ordnanceUpdates.length > 0) {
+    void combat.updateEmbeddedDocuments("Combatant", ordnanceUpdates);
+  }
+});
+
 
 function isCoreSfrpgPack(pack) {
   const metadata = pack?.metadata ?? {};
@@ -431,6 +508,78 @@ function suppressCoreSfrpgCompendiumVisibility() {
 
 function isAlternityEnabled() {
   return game.settings.get(MODULE_ID, SETTING_KEYS.enableOverlay) === true;
+}
+
+function getCurrentStarshipActionsSource() {
+  const value = game.settings.get("sfrpg", "starshipActionsSource");
+  return typeof value === "string" && value.length > 0 ? value : CORE_STARSHIP_ACTIONS_PACK;
+}
+
+function getAlternityStarshipActionsPackKey() {
+  return game.packs.get(ALTERNITY_STARSHIP_ACTIONS_PACK) ? ALTERNITY_STARSHIP_ACTIONS_PACK : null;
+}
+
+async function synchronizeStarshipActionsSource() {
+  const currentSource = getCurrentStarshipActionsSource();
+  const alternitySource = getAlternityStarshipActionsPackKey();
+  const overlayEnabled = isAlternityEnabled();
+
+  if (game.user?.isGM) {
+    if (overlayEnabled && alternitySource) {
+      const backupSource = String(game.settings.get(MODULE_ID, SETTING_KEYS.starshipActionsSourceBackup) ?? "");
+      if (currentSource !== alternitySource) {
+        const nextBackup = currentSource !== alternitySource ? currentSource : backupSource;
+        if (nextBackup && nextBackup !== backupSource) {
+          await game.settings.set(MODULE_ID, SETTING_KEYS.starshipActionsSourceBackup, nextBackup);
+        }
+
+        await game.settings.set("sfrpg", "starshipActionsSource", alternitySource);
+      }
+    }
+
+    if (!overlayEnabled && currentSource === ALTERNITY_STARSHIP_ACTIONS_PACK) {
+      const backupSource = String(game.settings.get(MODULE_ID, SETTING_KEYS.starshipActionsSourceBackup) ?? "");
+      const restoreSource = backupSource || CORE_STARSHIP_ACTIONS_PACK;
+
+      await game.settings.set("sfrpg", "starshipActionsSource", restoreSource);
+
+      if (backupSource) {
+        await game.settings.set(MODULE_ID, SETTING_KEYS.starshipActionsSourceBackup, "");
+      }
+    }
+  }
+
+  if (overlayEnabled && !alternitySource) {
+    console.warn("Alternity-SFRPG | Could not find sf-alternity.sfa_starship-actions; leaving the current SFRPG starship action source unchanged.");
+  }
+
+  await refreshStarshipActionsCache();
+}
+
+async function refreshStarshipActionsCache() {
+  const StarshipSheet = game.sfrpg?.applications?.ActorSheetSFRPGStarship;
+  if (!StarshipSheet?.ensureStarshipActions) return;
+
+  const currentSource = getCurrentStarshipActionsSource();
+  if (!game.packs.get(currentSource)) {
+    console.warn(`Alternity-SFRPG | Starship action source pack not found: ${currentSource}`);
+    return;
+  }
+
+  if (StarshipSheet.__sfAlternityStarshipActionsSource === currentSource && StarshipSheet.StarshipActionsCache) {
+    return;
+  }
+
+  await StarshipSheet.ensureStarshipActions();
+  StarshipSheet.__sfAlternityStarshipActionsSource = currentSource;
+  rerenderOpenStarshipSheets();
+}
+
+function rerenderOpenStarshipSheets() {
+  for (const app of Object.values(ui.windows ?? {})) {
+    if (app?.actor?.type !== "starship") continue;
+    app.render(false);
+  }
 }
 
 async function disableSfrpgAutoAddUnarmedStrike() {
@@ -576,6 +725,56 @@ function installStarshipCritThresholdPatch({ logMissing = true } = {}) {
   closure.fn = alternityCalculateStarshipCritThreshold;
   closure.__sfAlternityStarshipCtPatched = true;
   console.log("Alternity-SFRPG | Patched calculateStarshipCritThreshold with module rules.");
+}
+
+function installStarshipTargetLockPatch({ logMissing = true } = {}) {
+  const engine = game.sfrpg?.engine;
+  const closure = engine?.closures?.get?.("calculateStarshipTargetLock");
+
+  if (!closure) {
+    if (engine?.closures?.add) {
+      calculateStarshipTargetLock(engine);
+      console.log("Alternity-SFRPG | Registered calculateStarshipTargetLock from module rules.");
+      return;
+    }
+
+    if (logMissing) {
+      console.warn("Alternity-SFRPG | Unable to locate the SFRPG rules engine for starship target-lock patching.");
+    }
+    return;
+  }
+
+  if (closure.fn === alternityCalculateStarshipTargetLock || closure.__sfAlternityStarshipTargetLockPatched === true) return;
+
+  closure.__sfAlternityStarshipTargetLockOriginal = closure.fn;
+  closure.fn = alternityCalculateStarshipTargetLock;
+  closure.__sfAlternityStarshipTargetLockPatched = true;
+  console.log("Alternity-SFRPG | Patched calculateStarshipTargetLock with module rules.");
+}
+
+function installStarshipArmorClassPatch({ logMissing = true } = {}) {
+  const engine = game.sfrpg?.engine;
+  const closure = engine?.closures?.get?.("calculateStarshipArmorClass");
+
+  if (!closure) {
+    if (engine?.closures?.add) {
+      calculateStarshipArmorClass(engine);
+      console.log("Alternity-SFRPG | Registered calculateStarshipArmorClass from module rules.");
+      return;
+    }
+
+    if (logMissing) {
+      console.warn("Alternity-SFRPG | Unable to locate the SFRPG rules engine for starship armor-class patching.");
+    }
+    return;
+  }
+
+  if (closure.fn === alternityCalculateStarshipArmorClass || closure.__sfAlternityStarshipAcPatched === true) return;
+
+  closure.__sfAlternityStarshipAcOriginal = closure.fn;
+  closure.fn = alternityCalculateStarshipArmorClass;
+  closure.__sfAlternityStarshipAcPatched = true;
+  console.log("Alternity-SFRPG | Patched calculateStarshipArmorClass with module rules.");
 }
 
 function installSkillRankLimitOffsetPatch({ logMissing = true } = {}) {

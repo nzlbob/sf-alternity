@@ -19,7 +19,10 @@ export const SETTING_KEYS = {
   shortRestResolvePsionics: "shortRestResolvePsionics",
   shortRestFxRecoveryFormula: "shortRestFxRecoveryFormula",
   shortRestPsionicRecoveryFormula: "shortRestPsionicRecoveryFormula",
-  starshipDamageThreshold: "starshipDamageThreshold"
+  starshipArmorClassBase: "starshipArmorClassBase",
+  starshipTargetLockBase: "starshipTargetLockBase",
+  starshipDamageThreshold: "starshipDamageThreshold",
+  starshipActionsSourceBackup: "starshipActionsSourceBackup"
 
 };
 
@@ -159,6 +162,57 @@ export const NEW_ALTERNITY_globalAttackRollModifiers = [
     }
   }
 ]
+
+export const ALTERNITY_SKILL_STEP_MODIFIER_DEFS = [
+  {
+    id: "SkillStepBonus1",
+    nameKey: "SFA.SkillRoll.StepBonus1",
+    modifier: "1d4-1",
+    enabled: false
+  },
+  {
+    id: "SkillStepBonus2",
+    nameKey: "SFA.SkillRoll.StepBonus2",
+    modifier: "1d6",
+    enabled: false
+  },
+  {
+    id: "SkillStepBonus3",
+    nameKey: "SFA.SkillRoll.StepBonus3",
+    modifier: "1d8",
+    enabled: false
+  },
+  {
+    id: "SkillStepBonus4",
+    nameKey: "SFA.SkillRoll.StepBonus4",
+    modifier: "1d12",
+    enabled: false
+  },
+  {
+    id: "SkillStepPenalty1",
+    nameKey: "SFA.SkillRoll.StepPenalty1",
+    modifier: "-1d4+1",
+    enabled: false
+  },
+  {
+    id: "SkillStepPenalty2",
+    nameKey: "SFA.SkillRoll.StepPenalty2",
+    modifier: "-1d6",
+    enabled: false
+  },
+  {
+    id: "SkillStepPenalty3",
+    nameKey: "SFA.SkillRoll.StepPenalty3",
+    modifier: "-1d8",
+    enabled: false
+  },
+  {
+    id: "SkillStepPenalty4",
+    nameKey: "SFA.SkillRoll.StepPenalty4",
+    modifier: "-1d12",
+    enabled: false
+  }
+];
 
 
 

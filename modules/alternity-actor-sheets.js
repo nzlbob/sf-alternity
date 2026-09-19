@@ -12,7 +12,7 @@ export function registerAlternityActorSheets() {
   class AlternityCharacterSheet extends BaseCharacterSheet {}
   AlternityCharacterSheet[ALTERNITY_ACTOR_SHEET_FLAG] = true;
 
-  Actors.registerSheet(MODULE_ID, AlternityCharacterSheet, {
+  foundry.documents.collections.Actors.registerSheet(MODULE_ID, AlternityCharacterSheet, {
     types: ["character"],
     makeDefault: false,
     label: "Alternity Character Sheet"

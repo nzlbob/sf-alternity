@@ -2,7 +2,8 @@
     "TYPES": {
         "Item": {
             "archetypes": "FX and Psionic Features",
-            "starshipDriftEngine": "Starship FTL Engine"
+            "starshipDriftEngine": "Starship FTL Engine",
+            "starshipDefensiveCountermeasure": "Starship Damage Control System"
         }
     },
     "SFRPG": {
@@ -52,8 +53,8 @@
             },
             "StarshipDefensiveCountermeasure": {
                 "Header": "Defensive Systems Properties",
-                "TargetLockBonus": "Energy Armor Class Bonus",
-                "TargetLockBonusTooltip": "The energy armor class bonus provided by this defensive system."
+                "TargetLockBonus": "Damage Control Bonus",
+                "TargetLockBonusTooltip": "The damage control bonus provided by this defensive system."
             },
             "StarshipShield": {
                 "ArmorBonus": "Kinetic Armor Class Bonus",
@@ -117,6 +118,56 @@
                     "Speed": "Accel",
                     "Turn": "Mvr"
                 }
+            },
+            "Critical": {
+                "Systems": {
+                    "Engines": "Engines",
+                    "LifeSupport": "Life Support",
+                    "PowerCore": "Power Core",
+                    "Sensors": "Sensors",
+                    "WeaponsArrayAft": "Aft",
+                    "WeaponsArrayForward": "Forward",
+                    "WeaponsArrayPort": "Left",
+                    "WeaponsArrayStarboard": "Right"
+                }
+            },
+            "Damage": {
+                "Quadrant": {
+                    "Port": "Left",
+                    "Starboard": "Right"
+                },
+                "Title": "{name} - Select the damaged quadrant."
+            },
+            "Details": {
+                "Shields": {
+                    "Aft": "Aft Shields",
+                    "Conventional": "Shields",
+                    "Deflector": "Shield DV",
+                    "Forward": "Forward Shields",
+                    "Header": "Shields",
+                    "Port": "Left Shields",
+                    "Starboard": "Right Shields"
+                }
+            },
+            "Sides": {
+                "Aft": "Aft",
+                "Forward": "Forward",
+                "Port": "Left",
+                "Starboard": "Right"
+            },
+            "Weapons": {
+                "AftArc": "Aft Arc",
+                "CapitalSlots": "",
+                "ForwardArc": "Forward Arc",
+                "HeavySlots": "",
+                "LightSlots": "",
+                "NoCapacity": "This weapon does not have any charges left to attack.",
+                "NotAvailable": "Not available",
+                "NotMounted": "Unmounted weapons",
+                "PortArc": "Left Arc ",
+                "SpinalSlots": "Spinal: {current} / {max}",
+                "StarboardArc": "Right Arc",
+                "Turret": "All Arc Defence"
             }
         },
         "Items": {
@@ -129,11 +180,28 @@
                 "ActionTarget": {
                     "StarshipAC": "KAC",
                     "StarshipTL": "EAC"
-                }
+                },
+                "AttackRollBonus": "Attack Roll Step Bonus"
             },
             "Quadrants": {
                 "ArmorClass": "Kinetic Armor Class",
                 "TargetLock": "Energy Armor Class"
+            },
+            "ShipWeapon": {
+                "Activated": "Activated",
+                "AttackBonus": "Attack Step Bonus",
+                "BpCost": "BP Cost",
+                "ItemType": "Starship Weapon",
+                "Mounted": "Mounted",
+                "NotMounted": "Not Mounted",
+                "PowerCost": "Power Cost",
+                "Range": "Range",
+                "ReloadCost": "10 minutes",
+                "Source": "Source",
+                "Speed": "Speed: {speed} hexes",
+                "WeaponArc": "Weapon Arc",
+                "WeaponClass": "Weapon Class",
+                "WeaponStatus": "Weapon Status"
             }
         },
         "Damage": {
@@ -159,6 +227,13 @@
                 "ECM": "Sensors and ECM Module",
                 "Melee": "Defences",
                 "Tracking": "Launched Ordnance"
+            },
+            "StarshipArcs": {
+                "Aft": "Aft",
+                "Forward": "Forward",
+                "Port": "Left",
+                "Starboard": "Right",
+                "Turret": "All Arc Defence"
             }
         },
         "Combat": {
@@ -191,13 +266,29 @@
                     }
                 }
             }
+        },
+        "Rolls": {
+            "Name": "Rolls",
+            "Hint": "Settings related to dice rolls and roll mechanics."
         }
     },
     "SFA": {
+        "SkillRoll": {
+            "StepBonus1": "Step Bonus +1",
+            "StepBonus2": "Step Bonus +2",
+            "StepBonus3": "Step Bonus +3",
+            "StepBonus4": "Step Bonus +4",
+            "StepPenalty1": "Step Penalty -1",
+            "StepPenalty2": "Step Penalty -2",
+            "StepPenalty3": "Step Penalty -3",
+            "StepPenalty4": "Step Penalty -4"
+        },
         "CombatRoles": {
-            "Trap": "Trap",
-            "Descriptions": {
-                "Trap": "A stationary hazard that activates when a creature comes within its trigger area."
+            "StarshipActions": {
+                "Quadrant": {
+                    "Port": "Left",
+                    "Starboard": "Right"
+                }
             }
         },
         "Settings": {
@@ -216,6 +307,14 @@
             "SkillRankLimitOffset": {
                 "Name": "Skill Rank Limit Offset",
                 "Hint": "Adjusts the maximum allowed skill ranks for characters. Final cap is actor level plus this offset (for example, +2 allows level + 2)."
+            },
+            "StarshipArmorClassBase": {
+                "Name": "Starship Base Kinetic Armor Class",
+                "Hint": "Sets the base Kinetic Armor Class used by Alternity starship calculations. This does not affect characters or NPCs."
+            },
+            "StarshipTargetLockBase": {
+                "Name": "Starship Base Energy Armor Class",
+                "Hint": "Sets the base Energy Armor Class used by Alternity starship target-lock calculations. This does not affect characters or NPCs."
             },
             "HideCoreCompendiums": {
                 "Name": "Hide Core SFRPG Compendiums",
@@ -260,6 +359,11 @@
             "StarshipDamageThresholds": {
                 "Name": "Starship Damage Thresholds",
                 "Hint": "Modify what % of the starship's hull points must be lost before it takes critical damage. SFRPG default is 20%."
+            }
+        },
+        "StarshipSheet": {
+            "Modifiers": {
+                "Base": "Base: {value}"
             }
         },
         "Rolls": {

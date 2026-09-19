@@ -8,7 +8,7 @@
       "flags": {}
     }
   ],
-  "version": "0.14.04",
+  "version": "0.14.05",
   "compatibility": {
     "minimum": "14",
     "verified": "14",
@@ -30,7 +30,8 @@
         "sfa_gm_starships",
         "sfa_starship-components",
         "sfa_gm_starship-components",
-        "sfa_implementation-journal"
+        "sfa_implementation-journal",
+        "sfa_rolltables"
       ],
       "color": "#19d6b7"
     },
@@ -136,6 +137,18 @@
       "ownership": {
         "PLAYER": "NONE",
         "TRUSTED": "NONE",
+        "ASSISTANT": "OWNER"
+      }
+    },
+        {
+      "name": "sfa_rolltables",
+      "label": "Roll Tables",
+      "system": "sfrpg",
+      "type": "RollTable",
+      "path": "./packs/sfa_rolltables",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "TRUSTED": "OBSERVER",
         "ASSISTANT": "OWNER"
       }
     },

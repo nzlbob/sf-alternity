@@ -5,6 +5,7 @@ const FEAT_TEMPLATE = "modules/sf-alternity/templates/items/sfa-feat.hbs";
 const SPELL_TEMPLATE = "modules/sf-alternity/templates/items/sfa-spell.hbs";
 const RACE_TEMPLATE = "modules/sf-alternity/templates/items/sfa-race.hbs";
 const CLASS_TEMPLATE = "modules/sf-alternity/templates/items/sfa-class.hbs";
+//const STARSHIP_DEFENSE_TEMPLATE = "modules/sf-alternity/templates/items/sfa-starshipDefensiveCountermeasure.hbs";
 
 export function randomAbilities() {
   console.log("Hello World");
@@ -29,12 +30,19 @@ export function registerAlternityItemSheets() {
     }
   }
 
-  class AlternityArchetypesSheet extends ItemSheetSFRPG {
+    class AlternityArchetypesSheet extends ItemSheetSFRPG {
     get template() {
       return ARCHETYPES_TEMPLATE;
     }
   }
-
+  
+  /*
+  class AlternityStarshipDefenseSheet extends ItemSheetSFRPG {
+    get template() {
+      return STARSHIP_DEFENSE_TEMPLATE;
+    }
+  }
+*/
   class AlternityFeatSheet extends ItemSheetSFRPG {
     get template() {
       return FEAT_TEMPLATE;
@@ -53,31 +61,37 @@ export function registerAlternityItemSheets() {
     }
   }
 
-  Items.registerSheet(MODULE_ID, AlternitySpellSheet, {
+  foundry.documents.collections.Items.registerSheet(MODULE_ID, AlternitySpellSheet, {
     types: ["spell"],
     makeDefault: true,
     label: "Alternity Spell Sheet"
   });
 
-  Items.registerSheet(MODULE_ID, AlternityArchetypesSheet, {
+  foundry.documents.collections.Items.registerSheet(MODULE_ID, AlternityArchetypesSheet, {
     types: ["archetypes"],
     makeDefault: true,
     label: "Alternity Archetypes Sheet"
   });
-
-  Items.registerSheet(MODULE_ID, AlternityFeatSheet, {
+  /*
+  foundry.documents.collections.Items.registerSheet(MODULE_ID, AlternityStarshipDefenseSheet, {
+    types: ["starshipDefensiveCountermeasure"],
+    makeDefault: true,
+    label: "Alternity Starship Defense Sheet"
+  });
+*/
+  foundry.documents.collections.Items.registerSheet(MODULE_ID, AlternityFeatSheet, {
     types: ["feat"],
     makeDefault: true,
     label: "Alternity Feat Sheet"
   });
 
-  Items.registerSheet(MODULE_ID, AlternityRaceSheet, {
+  foundry.documents.collections.Items.registerSheet(MODULE_ID, AlternityRaceSheet, {
     types: ["race"],
     makeDefault: true,
     label: "Alternity Race Sheet"
   });
 
-  Items.registerSheet(MODULE_ID, AlternityClassSheet, {
+  foundry.documents.collections.Items.registerSheet(MODULE_ID, AlternityClassSheet, {
     types: ["class"],
     makeDefault: true,
     label: "Alternity Class Sheet"

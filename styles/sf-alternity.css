@@ -120,6 +120,8 @@
     -ms-user-select: text;
     user-select: text;
     font-size: medium;
+     font-size: var(--font-size-12);
+     font-family: "serpentine", sans-serif;
 	margin: 0.5em 0 0.5em 0;
 }
 

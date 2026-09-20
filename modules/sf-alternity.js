@@ -43,6 +43,15 @@ import { registerAlternitySkillRollPatch } from "./alternity-skill-rolling.js";
 import calculateStarshipCritThreshold, { alternityCalculateStarshipCritThreshold } from "./rules/calculate-alt-starship-ct.js";
 import calculateStarshipTargetLock, { alternityCalculateStarshipTargetLock } from "./rules/calculate-alt-starship-targetlock.js";
 import calculateStarshipArmorClass, { alternityCalculateStarshipArmorClass } from "./rules/calculate-alt-starship-ac.js";
+import {
+  alternityCalculateBaseSkills,
+  alternityIgnoreSkillArmorCheckPenalty,
+  applyAlternityUnskilledSkillModifiers
+} from "./rules/calculate-alt-base-skills.js";
+import {
+  alternityDeferBaseSaves,
+  applyAlternitySkillBasedSaves
+} from "./rules/calculate-alt-base-saves.js";
 
 
 console.log("Alternity-SFRPG | Initializing module…");
@@ -217,6 +226,7 @@ Hooks.once("init", () => {
 Hooks.once("setup", () => {
   console.log("Alternity-SFRPG | setup");
   installStarshipCritThresholdPatch({ logMissing: false });
+  installAlternitySkillCalculationPatches();
 
 
   const originalrace = game.packs.get("sfrpg.races");
@@ -315,8 +325,6 @@ Hooks.on("updateActor", (actor, update, options) => {
   const enabled = isAlternityEnabled();
   if (!enabled || options?.[MODULE_ID]?.skipAlternityRefresh) return;
   if (actor.type !== "character" && actor.type !== "npc2") return;
-
-  void syncAlternityDefensesFromSkills(actor, options);
 
   void initializeAlternityActorSkills(actor)
     .then(async () => {
@@ -645,61 +653,65 @@ async function loadAlternityUnarmedAttackSource() {
   return item?.toObject() ?? null;
 }
 
-function getActorSkillMod(actor, skillId) {
-  const mod = Number(actor?.system?.skills?.[skillId]?.mod);
-  return Number.isFinite(mod) ? mod : 0;
-}
-
-async function syncAlternityDefensesFromSkills(actor, options = {}) {
-  if (options?.[MODULE_ID]?.skipDefenseSync) return;
-  if (actor?.type !== "character" && actor?.type !== "npc2") return;
-
-  const pro990Mod = getActorSkillMod(actor, "pro990");
-  const pro991Mod = getActorSkillMod(actor, "pro991");
-  const acrMod = getActorSkillMod(actor, "acr");
-  const updates = {};
-
-  if (actor.type === "character") {
-    const fortMisc = 10 + pro990Mod;
-    const willMisc = 10 + pro991Mod;
-    const reflexMisc = 10 + acrMod;
-
-    if (Number(actor?.system?.attributes?.fort?.misc) !== fortMisc) {
-      updates["system.attributes.fort.misc"] = fortMisc;
-    }
-    if (Number(actor?.system?.attributes?.will?.misc) !== willMisc) {
-      updates["system.attributes.will.misc"] = willMisc;
-    }
-    if (Number(actor?.system?.attributes?.reflex?.misc) !== reflexMisc) {
-      updates["system.attributes.reflex.misc"] = reflexMisc;
-    }
-  }
-
-  if (actor.type === "npc2") {
-    if (Number(actor?.system?.attributes?.fort?.base) !== pro990Mod) {
-      updates["system.attributes.fort.base"] = pro990Mod;
-    }
-    if (Number(actor?.system?.attributes?.will?.base) !== pro991Mod) {
-      updates["system.attributes.will.base"] = pro991Mod;
-    }
-    if (Number(actor?.system?.attributes?.reflex?.base) !== acrMod) {
-      updates["system.attributes.reflex.base"] = acrMod;
-    }
-  }
-
-  if (foundry.utils.isEmpty(updates)) return;
-
-  await actor.update(updates, {
-    [MODULE_ID]: {
-      skipAlternityRefresh: true,
-      skipDefenseSync: true
-    }
-  });
-}
-
 function getSkillRankLimitOffset() {
   const rawOffset = Number(game.settings.get(MODULE_ID, SETTING_KEYS.skillRankLimitOffset) ?? 0);
   return Number.isFinite(rawOffset) ? Math.trunc(rawOffset) : 0;
+}
+
+function installAlternitySkillCalculationPatches() {
+  const closures = game.sfrpg?.engine?.closures;
+  const baseSaves = closures?.get?.("calculateBaseSaves");
+  const npc2BaseSaves = closures?.get?.("calculateNPC2BaseSaves");
+  const baseSkills = closures?.get?.("calculateBaseSkills");
+  const skillModifiers = closures?.get?.("calculateSkillModifiers");
+  const armorCheckPenalty = closures?.get?.("calculateSkillArmorCheckPenalty");
+
+  if (!baseSaves || !npc2BaseSaves || !baseSkills || !skillModifiers || !armorCheckPenalty) {
+    console.warn("Alternity-SFRPG | Unable to locate all SFRPG skill and save calculation closures.");
+    return;
+  }
+
+  if (baseSaves.__sfAlternityPatched !== true) {
+    baseSaves.__sfAlternityOriginal = baseSaves.fn;
+    baseSaves.fn = alternityDeferBaseSaves;
+    baseSaves.__sfAlternityPatched = true;
+  }
+
+  if (npc2BaseSaves.__sfAlternityPatched !== true) {
+    npc2BaseSaves.__sfAlternityOriginal = npc2BaseSaves.fn;
+    npc2BaseSaves.fn = alternityDeferBaseSaves;
+    npc2BaseSaves.__sfAlternityPatched = true;
+  }
+
+  if (baseSkills.__sfAlternityPatched !== true) {
+    baseSkills.__sfAlternityOriginal = baseSkills.fn;
+    baseSkills.fn = alternityCalculateBaseSkills;
+    baseSkills.__sfAlternityPatched = true;
+  }
+
+  if (skillModifiers.__sfAlternityPatched !== true) {
+    const originalSkillModifiers = skillModifiers.fn;
+    skillModifiers.__sfAlternityOriginal = originalSkillModifiers;
+    skillModifiers.fn = function alternityCalculateSkillModifiers(fact, context) {
+      const result = originalSkillModifiers.call(this, fact, context);
+      if (result && typeof result.then === "function") {
+        return result
+          .then(applyAlternityUnskilledSkillModifiers)
+          .then(applyAlternitySkillBasedSaves);
+      }
+      const modifiedFact = applyAlternityUnskilledSkillModifiers(result ?? fact);
+      return applyAlternitySkillBasedSaves(modifiedFact);
+    };
+    skillModifiers.__sfAlternityPatched = true;
+  }
+
+  if (armorCheckPenalty.__sfAlternityPatched !== true) {
+    armorCheckPenalty.__sfAlternityOriginal = armorCheckPenalty.fn;
+    armorCheckPenalty.fn = alternityIgnoreSkillArmorCheckPenalty;
+    armorCheckPenalty.__sfAlternityPatched = true;
+  }
+
+  console.log("Alternity-SFRPG | Patched skill-based saves, base skills, unskilled modifiers, and armor check penalties.");
 }
 
 function installStarshipCritThresholdPatch({ logMissing = true } = {}) {

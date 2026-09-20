@@ -279,7 +279,7 @@
 .sfrpg.sheet.actor.character .attribute.save[data-save="fort"] .attribute-footer,
 .sfrpg.sheet.actor.character .attribute.save[data-save="reflex"] .attribute-footer,
 .sfrpg.sheet.actor.character .attribute.save[data-save="will"] .attribute-footer {
-    display: none;
+  /* display: none; */
 }
 
 .sfrpg.sheet.actor.starship .sheet-header .header-background .charlevel {

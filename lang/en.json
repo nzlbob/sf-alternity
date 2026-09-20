@@ -273,6 +273,10 @@
         }
     },
     "SFA": {
+        "Skill": {
+            "UnskilledModifier": "Unskilled",
+            "UnskilledModifierTooltip": "Unskilled modifier: {modifier}"
+        },
         "SkillRoll": {
             "StepBonus1": "Step Bonus +1",
             "StepBonus2": "Step Bonus +2",

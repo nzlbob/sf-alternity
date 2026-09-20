@@ -8,7 +8,7 @@
       "flags": {}
     }
   ],
-  "version": "0.14.05",
+  "version": "0.14.06",
   "compatibility": {
     "minimum": "14",
     "verified": "14",
@@ -17,6 +17,25 @@
   "esmodules": [
     "modules/sf-alternity.js"
   ],
+ "relationships": {
+    "systems": [
+      {
+        "id": "sfrpg",
+        "type": "system",
+        "compatibility": [
+          {
+            "minimum": "0.24.0",
+            "verified": "0.25.0"
+          }
+        ]
+      }
+    ],
+    "requires": [],
+    "optional": [],
+    "flags": {
+      "optional": []
+    }
+  },
   "packFolders": [
     {
       "name": "SF Alternity Overlay",
